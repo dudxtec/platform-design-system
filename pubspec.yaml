@@ -1,0 +1,19 @@
+name: platform_design_system
+description: "Design system Flutter da plataforma Dudx"
+version: 0.1.0
+homepage: https://github.com/dudxtec/platform-design-system
+
+environment:
+  sdk: ^3.11.3
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
