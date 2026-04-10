@@ -8,4 +8,6 @@ class DsSpacing {
   static const double lg = 20;
   static const double xl = 24;
   static const double xxl = 32;
+  static const double xxxl = 48;
+  static const double xxxxl = 64;
 }

@@ -61,4 +61,9 @@ class DsTypography {
       letterSpacing: 0.5,
     ),
   );
+
+  static TextTheme get darkTextTheme => textTheme.apply(
+    bodyColor: DsColors.textPrimaryDark,
+    displayColor: DsColors.textPrimaryDark,
+  );
 }
