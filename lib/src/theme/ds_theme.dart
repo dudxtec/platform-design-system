@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../tokens/ds_colors.dart';
 import '../tokens/ds_radius.dart';
+import '../tokens/ds_spacing.dart';
 import '../tokens/ds_typography.dart';
 
 class DsTheme {
@@ -44,30 +45,33 @@ class DsTheme {
           backgroundColor: DsColors.primary,
           foregroundColor: DsColors.textOnPrimary,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: const EdgeInsets.symmetric(
+            horizontal: DsSpacing.xl,
+            vertical: DsSpacing.sm,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(DsRadius.sm),
           ),
-          textStyle: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
+          textStyle: DsTypography.textTheme.labelLarge,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: DsColors.primary,
           side: const BorderSide(color: DsColors.primary),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: const EdgeInsets.symmetric(
+            horizontal: DsSpacing.xl,
+            vertical: DsSpacing.sm,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(DsRadius.sm),
           ),
+          textStyle: DsTypography.textTheme.labelLarge,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFFF8F9FC),
+        fillColor: DsColors.inputFill,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(DsRadius.sm),
           borderSide: const BorderSide(color: DsColors.divider),
@@ -81,12 +85,101 @@ class DsTheme {
           borderSide: const BorderSide(color: DsColors.primary, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
+          horizontal: DsSpacing.md,
+          vertical: DsSpacing.sm,
         ),
       ),
       dividerTheme: const DividerThemeData(
         color: DsColors.divider,
+        thickness: 1,
+        space: 0,
+      ),
+    );
+  }
+
+  static ThemeData dark() {
+    final ColorScheme colorScheme = ColorScheme.fromSeed(
+      seedColor: DsColors.primary,
+      primary: DsColors.primaryLight,
+      onPrimary: DsColors.textOnPrimary,
+      secondary: DsColors.accent,
+      error: DsColors.error,
+      surface: DsColors.surfaceDark,
+      brightness: Brightness.dark,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: DsColors.backgroundDark,
+      fontFamily: 'Roboto',
+      textTheme: DsTypography.darkTextTheme,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: DsColors.backgroundDark,
+        foregroundColor: DsColors.primaryLight,
+        elevation: 0,
+        centerTitle: false,
+      ),
+      cardTheme: CardThemeData(
+        color: DsColors.cardDark,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(DsRadius.md),
+          side: const BorderSide(color: DsColors.dividerDark),
+        ),
+        clipBehavior: Clip.antiAlias,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: DsColors.primaryLight,
+          foregroundColor: DsColors.textOnPrimary,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(
+            horizontal: DsSpacing.xl,
+            vertical: DsSpacing.sm,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(DsRadius.sm),
+          ),
+          textStyle: DsTypography.darkTextTheme.labelLarge,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: DsColors.primaryLight,
+          side: const BorderSide(color: DsColors.primaryLight),
+          padding: const EdgeInsets.symmetric(
+            horizontal: DsSpacing.xl,
+            vertical: DsSpacing.sm,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(DsRadius.sm),
+          ),
+          textStyle: DsTypography.darkTextTheme.labelLarge,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: DsColors.surfaceDark,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(DsRadius.sm),
+          borderSide: const BorderSide(color: DsColors.dividerDark),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(DsRadius.sm),
+          borderSide: const BorderSide(color: DsColors.dividerDark),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(DsRadius.sm),
+          borderSide: const BorderSide(color: DsColors.primaryLight, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: DsSpacing.md,
+          vertical: DsSpacing.sm,
+        ),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: DsColors.dividerDark,
         thickness: 1,
         space: 0,
       ),

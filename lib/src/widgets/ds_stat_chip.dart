@@ -51,7 +51,7 @@ class DsStatChip extends StatelessWidget {
             child: Text(
               value,
               style: const TextStyle(
-                color: Colors.white,
+                color: DsColors.textOnPrimary,
                 fontWeight: FontWeight.w700,
                 fontSize: 12,
               ),
