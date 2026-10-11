@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'ds_button.dart';
+
+@Deprecated('Use DsButton(variant: DsButtonVariant.secondary).')
 class DsOutlinedButton extends StatelessWidget {
   const DsOutlinedButton({
     super.key,
@@ -14,14 +17,11 @@ class DsOutlinedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (icon == null) {
-      return OutlinedButton(onPressed: onPressed, child: Text(label));
-    }
-
-    return OutlinedButton.icon(
+    return DsButton(
+      label: label,
       onPressed: onPressed,
-      icon: Icon(icon, size: 18),
-      label: Text(label),
+      icon: icon,
+      variant: DsButtonVariant.secondary,
     );
   }
 }

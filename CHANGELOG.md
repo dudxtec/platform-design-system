@@ -1,3 +1,39 @@
+## 0.2.0
+
+Fundação do design system. Ver `docs/`.
+
+### Muda a aparência de quem usa `DsTheme`
+
+* Top bar com fundo `surface`, título em cor de texto e borda inferior (antes fundo cinza e título teal).
+* `OutlinedButton` neutro (antes contorno e texto teal).
+* `FilledButton` e `TextButton` passam a ter tema; `FilledButton` fica igual ao `ElevatedButton`.
+* Botões com 40 px de altura e padding horizontal de 16 (antes 24 x 12).
+* Campos com 40 px, borda `borderStrong` (3:1) e estados de erro e desabilitado.
+* Tipografia com altura de linha definida e sem espaçamento entre letras no corpo; `titleMedium` em peso 600.
+* `colorScheme.secondaryContainer` deixa de derivar do laranja.
+* Tema escuro refeito sobre tokens próprios.
+
+### Adicionado
+
+* `DsPalette`: escalas 50–900 de teal, laranja, neutro, verde, vermelho, âmbar e azul.
+* `DsColorTokens` (`context.dsColors`): tokens semânticos como `ThemeExtension`, claro e escuro, com tons (`DsTone`).
+* `DsSizes`, `DsElevation`, `DsLayer`, `DsMotion`; `DsSpacing.s2`–`s80`; `DsRadius.none` e `xs`.
+* Estilos `DsTypography.table`, `tableHeader`, `menu`, `kpi`, `code`.
+* Temas de diálogo, bottom sheet, drawer, snackbar, tooltip, abas, chip, tabela, menus, seletor de data, progresso, lista e barra de rolagem.
+* Componentes: `DsButton`, `DsBadge`, `DsAlert`, `DsToast`, `DsConfirmDialog`, `DsEmptyState`, `DsErrorState`, `DsLoadingState`, `DsAppShell`, `DsPage`, `DsPageHeader`, `DsBreadcrumb`, `DsSectionCard`, `DsKpiCard`, `DsPagination`, `DsFilterBar`, `DsDataTable`, `DsFormGrid`, `DsFieldLabel`, `DsFormActions`.
+* Galeria em `example/` e documentação em `docs/`.
+* Testes de contraste WCAG AA sobre os tokens semânticos.
+
+### Obsoleto
+
+* `DsPrimaryButton` e `DsOutlinedButton`: use `DsButton`.
+* `DsColors` em código novo: use `context.dsColors`.
+
+### Corrigido
+
+* Três testes de responsividade que falhavam em `main` (redimensionavam o `MediaQuery` em vez da superfície).
+* `DsStatChip` agora é lido como um único item por leitores de tela.
+
 ## 0.1.0
 
 * Estrutura inicial do design system com tokens (`DsColors`, `DsSpacing`, `DsRadius`, `DsTypography`), tema (`DsTheme.light()` e `DsTheme.dark()`) e componentes base (`DsPrimaryButton`, `DsOutlinedButton`, `DsStatChip`).
