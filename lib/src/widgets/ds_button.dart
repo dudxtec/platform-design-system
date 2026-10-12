@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../tokens/ds_breakpoints.dart';
 import '../tokens/ds_color_tokens.dart';
 import '../tokens/ds_foundations.dart';
 import '../tokens/ds_spacing.dart';
@@ -51,13 +52,18 @@ class DsButton extends StatelessWidget {
     final DsColorTokens c = context.dsColors;
     final VoidCallback? effectiveOnPressed = loading ? null : onPressed;
     final bool small = size == DsButtonSize.sm;
+    // Below desktop width the pointer is a finger: default buttons grow to
+    // the minimum touch target.
+    final bool touch = MediaQuery.sizeOf(context).width < DsBreakpoints.tablet;
+    final double height = small
+        ? DsSizes.controlSm
+        : touch
+        ? DsSizes.touchTarget
+        : DsSizes.controlMd;
 
     ButtonStyle style = ButtonStyle(
       minimumSize: WidgetStatePropertyAll<Size>(
-        Size(
-          expand ? double.infinity : 64,
-          small ? DsSizes.controlSm : DsSizes.controlMd,
-        ),
+        Size(expand ? double.infinity : 64, height),
       ),
       padding: small
           ? const WidgetStatePropertyAll<EdgeInsets>(

@@ -107,6 +107,8 @@ class DsPageHeader extends StatelessWidget {
       child: Text(
         title,
         style: compact ? text.headlineSmall : text.headlineMedium,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
     );
     final Widget? supporting = subtitle == null

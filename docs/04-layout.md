@@ -212,4 +212,7 @@ DsAppShell(
   não cabe).
 - O calendário do `DsDateField` tem 312 px e abre para cima quando não há
   espaço abaixo.
+- Conteúdo de borda a borda (um iframe, por exemplo) usa
+  `DsPage(padding: EdgeInsets.zero)`.
+- Abaixo de 900 px de largura, botões e paginação têm alvo de toque de 44 px.
 - Teste toda tela nova em 1280 x 600.

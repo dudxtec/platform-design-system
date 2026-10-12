@@ -120,7 +120,7 @@ inglês vindo da API.
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│ ☐  Nome ↑            CPF             Cidade     Status    Ações  │  40 px, fixo
+│ ☐  Nome ↑            CPF             Cidade     Status    Ações  │  40 px
 ├──────────────────────────────────────────────────────────────────┤
 │ ☐  Ana Souza         001.482.190-00  Brasília   (Ativo)   ✎  ⋯   │  44 px
 │ ☑  Bruno Carvalho    002.482.191-01  Goiânia    (Inativo) ✎  ⋯   │  selecionada
@@ -134,6 +134,9 @@ Com linhas selecionadas, a barra de ferramentas dá lugar à barra de lote:
 ```
 │ 2 selecionados   [Exportar seleção] [Inativar]   Limpar seleção  │
 ```
+
+A barra de ferramentas e a paginação ficam fixas; o cabeçalho das colunas rola
+junto com as linhas.
 
 ### Listagens
 

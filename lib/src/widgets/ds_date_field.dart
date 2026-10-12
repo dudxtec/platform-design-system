@@ -5,39 +5,76 @@ import '../tokens/ds_color_tokens.dart';
 import '../tokens/ds_foundations.dart';
 import '../tokens/ds_radius.dart';
 import '../tokens/ds_spacing.dart';
+import 'ds_button.dart';
 import 'ds_calendar.dart';
 import 'ds_form.dart';
 
-/// Formats digits as `dd/mm/aaaa` while the user types.
+/// Helps typing a date without ever rewriting what the user typed.
+///
+/// It only does two things: refuses characters that cannot be part of a date,
+/// and adds the separator when the user is typing at the end of the text
+/// ("25" becomes "25/"). Editing in the middle, deleting and pasting leave the
+/// text and the cursor exactly where they are.
 class DsDateInputFormatter extends TextInputFormatter {
-  const DsDateInputFormatter();
+  const DsDateInputFormatter({this.withTime = false});
+
+  final bool withTime;
+
+  static final RegExp _dateChars = RegExp(r'^[0-9/\-]*$');
+  static final RegExp _dateTimeChars = RegExp(r'^[0-9/\-: T]*$');
+  static final RegExp _day = RegExp(r'^\d{2}$');
+  static final RegExp _dayMonth = RegExp(r'^\d{2}/\d{2}$');
+  static final RegExp _dateHour = RegExp(r'^\d{2}/\d{2}/\d{4} \d{2}$');
 
   @override
   TextEditingValue formatEditUpdate(
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    String digits = newValue.text.replaceAll(RegExp(r'\D'), '');
-    if (digits.length > 8) digits = digits.substring(0, 8);
-    final StringBuffer out = StringBuffer();
-    for (int i = 0; i < digits.length; i++) {
-      if (i == 2 || i == 4) out.write('/');
-      out.write(digits[i]);
+    final String text = newValue.text;
+    if (!(withTime ? _dateTimeChars : _dateChars).hasMatch(text)) {
+      return oldValue;
     }
-    final String text = out.toString();
+    if (text.length > (withTime ? 19 : 10)) return oldValue;
+
+    final bool appendedOneChar =
+        text.length == oldValue.text.length + 1 &&
+        text.startsWith(oldValue.text) &&
+        newValue.selection.isCollapsed &&
+        newValue.selection.baseOffset == text.length;
+    if (!appendedOneChar) return newValue;
+
+    String? separator;
+    if (_day.hasMatch(text) || _dayMonth.hasMatch(text)) {
+      separator = '/';
+    } else if (withTime && _dateHour.hasMatch(text)) {
+      separator = ':';
+    }
+    if (separator == null) return newValue;
+
+    final String completed = '$text$separator';
     return TextEditingValue(
-      text: text,
-      selection: TextSelection.collapsed(offset: text.length),
+      text: completed,
+      selection: TextSelection.collapsed(offset: completed.length),
     );
   }
 }
 
-/// Date input: typed with a `dd/mm/aaaa` mask or picked from a calendar
-/// popover anchored to the field.
+/// Date input: typed as `dd/mm/aaaa` or picked from a calendar popover
+/// anchored to the field.
 ///
-/// Typing is always possible and is the fastest path; the calendar opens from
-/// the icon or with Alt+Down and closes with Esc. The popover opens upwards
-/// when there is no room below, so it works on short screens and in dialogs.
+/// Typing is always possible and is the fastest path. The text is never
+/// rebuilt while the user edits, so the cursor stays where it is; incomplete
+/// dates are allowed while typing and reported by validation. `aaaa-mm-dd` and
+/// eight digits are accepted too, and shown as `dd/mm/aaaa` once the field
+/// loses focus.
+///
+/// The calendar opens from the icon or with Alt+Down and closes with Esc; it
+/// opens upwards when there is no room below. Closing it without choosing
+/// keeps the text.
+///
+/// With [withTime] the value carries a time (`dd/mm/aaaa hh:mm`); picking a
+/// day keeps the time already in the field.
 ///
 /// Validates inside a [Form]: required, well-formed, within range, and then
 /// [validator].
@@ -47,8 +84,12 @@ class DsDateField extends StatefulWidget {
     required this.label,
     required this.onChanged,
     this.value,
+    this.controller,
+    this.focusNode,
     this.required = false,
     this.enabled = true,
+    this.withTime = false,
+    this.showSeconds = false,
     this.firstDate,
     this.lastDate,
     this.rangeStart,
@@ -56,6 +97,7 @@ class DsDateField extends StatefulWidget {
     this.helperText,
     this.validator,
     this.onSubmitted,
+    this.onPicked,
     this.textInputAction,
   });
 
@@ -65,8 +107,20 @@ class DsDateField extends StatefulWidget {
   /// Called with a date when the text becomes a valid date in range, and
   /// with null when it stops being one.
   final ValueChanged<DateTime?> onChanged;
+
+  /// For callers that need the raw text. When given, its initial text is
+  /// used and [value] only applies when it changes afterwards.
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
   final bool required;
   final bool enabled;
+
+  /// Accept and show a time after the date.
+  final bool withTime;
+
+  /// With [withTime], always show seconds. When false, seconds are shown only
+  /// if they are not zero.
+  final bool showSeconds;
 
   /// Defaults to 01/01/1900.
   final DateTime? firstDate;
@@ -81,7 +135,12 @@ class DsDateField extends StatefulWidget {
 
   /// Extra rule, run only for a valid date in range.
   final String? Function(DateTime value)? validator;
+
+  /// Enter in the field.
   final VoidCallback? onSubmitted;
+
+  /// A date chosen in the calendar (not typed). Use it to save right away.
+  final ValueChanged<DateTime?>? onPicked;
   final TextInputAction? textInputAction;
 
   /// Narrowest width that shows the whole date and the calendar button.
@@ -92,51 +151,106 @@ class DsDateField extends StatefulWidget {
 }
 
 class _DsDateFieldState extends State<DsDateField> {
-  final TextEditingController _text = TextEditingController();
+  TextEditingController? _ownController;
+  FocusNode? _ownFocus;
   final OverlayPortalController _popover = OverlayPortalController();
   final LayerLink _link = LayerLink();
-  final FocusNode _focus = FocusNode();
   final GlobalKey _fieldKey = GlobalKey();
 
   /// Where the popover goes, relative to the top-left corner of the field.
   Offset _popoverOffset = Offset.zero;
+
+  static const double _timeRowHeight = 56;
+  static final RegExp _eightDigits = RegExp(r'^\d{8}$');
+
+  TextEditingController get _text => widget.controller ?? _ownController!;
+  FocusNode get _focus => widget.focusNode ?? _ownFocus!;
 
   DateTime get _first =>
       DateUtils.dateOnly(widget.firstDate ?? DsDate.defaultFirst);
   DateTime get _last =>
       DateUtils.dateOnly(widget.lastDate ?? DsDate.defaultLast);
 
+  double get _popoverHeight =>
+      DsCalendar.height + (widget.withTime ? _timeRowHeight : 0);
+
   @override
   void initState() {
     super.initState();
-    if (widget.value != null) _text.text = DsDate.format(widget.value!);
+    if (widget.controller == null) _ownController = TextEditingController();
+    if (widget.focusNode == null) _ownFocus = FocusNode();
+    if (_text.text.isEmpty && widget.value != null) {
+      _text.text = _format(widget.value!);
+    } else {
+      _normalize();
+    }
+    _focus.addListener(_onFocusChanged);
   }
 
   @override
   void didUpdateWidget(DsDateField oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.focusNode != widget.focusNode) {
+      (oldWidget.focusNode ?? _ownFocus)?.removeListener(_onFocusChanged);
+      if (widget.focusNode == null) _ownFocus ??= FocusNode();
+      _focus.addListener(_onFocusChanged);
+    }
+    if (widget.controller == null && _ownController == null) {
+      _ownController = TextEditingController(text: oldWidget.controller?.text);
+    }
     // Follow the parent only when it disagrees with what is typed, so partial
     // input is not erased while the parent holds null.
     final DateTime? typed = _parse(_text.text);
-    if (!DateUtils.isSameDay(widget.value, typed) &&
-        !DateUtils.isSameDay(widget.value, oldWidget.value)) {
-      _text.text = widget.value == null ? '' : DsDate.format(widget.value!);
+    if (!_same(widget.value, typed) && !_same(widget.value, oldWidget.value)) {
+      _text.text = widget.value == null ? '' : _format(widget.value!);
     }
   }
 
   @override
   void dispose() {
-    _text.dispose();
-    _focus.dispose();
+    _focus.removeListener(_onFocusChanged);
+    _ownController?.dispose();
+    _ownFocus?.dispose();
     super.dispose();
   }
 
+  bool _same(DateTime? a, DateTime? b) {
+    if (a == null || b == null) return a == b;
+    return widget.withTime ? a.isAtSameMomentAs(b) : DateUtils.isSameDay(a, b);
+  }
+
+  String _format(DateTime date) {
+    return widget.withTime
+        ? DsDate.formatDateTime(date, seconds: widget.showSeconds)
+        : DsDate.format(date);
+  }
+
+  DateTime? _read(String text) {
+    return widget.withTime
+        ? DsDate.tryParseDateTime(text)
+        : DsDate.tryParse(text);
+  }
+
+  /// The typed value, or null when incomplete, impossible or out of range.
   DateTime? _parse(String text) {
-    final DateTime? date = DsDate.tryParse(text);
-    if (date == null || date.isBefore(_first) || date.isAfter(_last)) {
-      return null;
-    }
+    final DateTime? date = _read(text);
+    if (date == null) return null;
+    final DateTime day = DateUtils.dateOnly(date);
+    if (day.isBefore(_first) || day.isAfter(_last)) return null;
     return date;
+  }
+
+  /// Rewrites a complete, valid date in the canonical format. Never called
+  /// while the user is typing inside the field.
+  void _normalize() {
+    final DateTime? date = _parse(_text.text);
+    if (date == null) return;
+    final String formatted = _format(date);
+    if (formatted != _text.text) _text.text = formatted;
+  }
+
+  void _onFocusChanged() {
+    if (!_focus.hasFocus && !_popover.isShowing) _normalize();
   }
 
   String? _validate(String? raw) {
@@ -144,12 +258,17 @@ class _DsDateFieldState extends State<DsDateField> {
     if (text.isEmpty) {
       return widget.required ? 'Preencha este campo.' : null;
     }
-    final DateTime? date = DsDate.tryParse(text);
-    if (date == null) return 'Informe uma data válida (dd/mm/aaaa).';
-    if (date.isBefore(_first)) {
+    final DateTime? date = _read(text);
+    if (date == null) {
+      return widget.withTime
+          ? 'Informe data e hora válidas (dd/mm/aaaa hh:mm).'
+          : 'Informe uma data válida (dd/mm/aaaa).';
+    }
+    final DateTime day = DateUtils.dateOnly(date);
+    if (day.isBefore(_first)) {
       return 'Informe uma data a partir de ${DsDate.format(_first)}.';
     }
-    if (date.isAfter(_last)) {
+    if (day.isAfter(_last)) {
       return 'Informe uma data até ${DsDate.format(_last)}.';
     }
     return widget.validator?.call(date);
@@ -165,12 +284,12 @@ class _DsDateFieldState extends State<DsDateField> {
       final Size screen = MediaQuery.sizeOf(context);
       final Offset origin = box.localToGlobal(Offset.zero);
       final Size field = box.size;
+      final double height = _popoverHeight;
 
       // Below the field when it fits, above otherwise.
       final double below = origin.dy + field.height + gap;
-      final bool fitsBelow =
-          below + DsCalendar.height + margin <= screen.height;
-      final double above = origin.dy - gap - DsCalendar.height;
+      final bool fitsBelow = below + height + margin <= screen.height;
+      final double above = origin.dy - gap - height;
       double top = fitsBelow || above < margin && origin.dy < screen.height / 2
           ? below
           : above;
@@ -180,10 +299,7 @@ class _DsDateFieldState extends State<DsDateField> {
       // top-left corner wins, so the header stays reachable.
       top = top.clamp(
         margin,
-        (screen.height - DsCalendar.height - margin).clamp(
-          margin,
-          double.infinity,
-        ),
+        (screen.height - height - margin).clamp(margin, double.infinity),
       );
       left = left.clamp(
         margin,
@@ -195,17 +311,67 @@ class _DsDateFieldState extends State<DsDateField> {
       _popoverOffset = Offset(left - origin.dx, top - origin.dy);
     }
     setState(_popover.show);
+    // Shortcuts (Esc) are handled around the field, so focus has to be inside
+    // it even when the calendar was opened with the mouse.
+    _focus.requestFocus();
   }
 
   void _close() {
     if (_popover.isShowing) setState(_popover.hide);
   }
 
-  void _select(DateTime? date) {
-    _text.text = date == null ? '' : DsDate.format(date);
-    widget.onChanged(date);
+  void _setText(DateTime? date) {
+    final String text = date == null ? '' : _format(date);
+    _text.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+
+  void _finish() {
+    widget.onPicked?.call(_parse(_text.text));
     _close();
     _focus.requestFocus();
+  }
+
+  void _pick(DateTime? date) {
+    DateTime? result = date;
+    if (date != null && widget.withTime) {
+      // Picking a day keeps the time that was already there.
+      final DateTime? current = DsDate.tryParseDateTime(_text.text);
+      result = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        current?.hour ?? 0,
+        current?.minute ?? 0,
+        current?.second ?? 0,
+      );
+    }
+    _setText(result);
+    widget.onChanged(result);
+    if (widget.withTime && result != null) {
+      // Stay open so the time can be adjusted.
+      setState(() {});
+    } else {
+      _finish();
+    }
+  }
+
+  void _setTime(TimeOfDay time) {
+    final DateTime? current = _parse(_text.text);
+    if (current == null) return;
+    final DateTime result = DateTime(
+      current.year,
+      current.month,
+      current.day,
+      time.hour,
+      time.minute,
+      current.second,
+    );
+    _setText(result);
+    widget.onChanged(result);
+    setState(() {});
   }
 
   @override
@@ -255,16 +421,29 @@ class _DsDateFieldState extends State<DsDateField> {
                                 DsSpacing.s8 * 2,
                           ),
                           child: SingleChildScrollView(
-                            child: DsCalendar(
-                              selected: current,
-                              rangeStart: widget.rangeStart,
-                              rangeEnd: widget.rangeEnd,
-                              firstDate: _first,
-                              lastDate: _last,
-                              onSelected: _select,
-                              onClear: widget.required || _text.text.isEmpty
-                                  ? null
-                                  : () => _select(null),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                DsCalendar(
+                                  selected: current,
+                                  rangeStart: widget.rangeStart,
+                                  rangeEnd: widget.rangeEnd,
+                                  firstDate: _first,
+                                  lastDate: _last,
+                                  onSelected: _pick,
+                                  onClear: widget.required || _text.text.isEmpty
+                                      ? null
+                                      : () => _pick(null),
+                                ),
+                                if (widget.withTime)
+                                  _TimeRow(
+                                    value: current == null
+                                        ? null
+                                        : TimeOfDay.fromDateTime(current),
+                                    onChanged: _setTime,
+                                    onDone: _finish,
+                                  ),
+                              ],
                             ),
                           ),
                         ),
@@ -281,18 +460,26 @@ class _DsDateFieldState extends State<DsDateField> {
               enabled: widget.enabled,
               keyboardType: TextInputType.datetime,
               textInputAction: widget.textInputAction,
-              inputFormatters: const <TextInputFormatter>[
-                DsDateInputFormatter(),
+              inputFormatters: <TextInputFormatter>[
+                DsDateInputFormatter(withTime: widget.withTime),
               ],
               validator: _validate,
               onChanged: (String text) {
+                // Eight bare digits can only come from a paste (typing gets
+                // its separators as it goes): show them as a date at once.
+                if (!widget.withTime && _eightDigits.hasMatch(text)) {
+                  _normalize();
+                }
                 setState(() {});
-                widget.onChanged(_parse(text));
+                widget.onChanged(_parse(_text.text));
               },
-              onFieldSubmitted: (_) => widget.onSubmitted?.call(),
+              onFieldSubmitted: (_) {
+                _normalize();
+                widget.onSubmitted?.call();
+              },
               decoration: InputDecoration(
                 label: DsFieldLabel(widget.label, required: widget.required),
-                hintText: 'dd/mm/aaaa',
+                hintText: widget.withTime ? 'dd/mm/aaaa hh:mm' : 'dd/mm/aaaa',
                 helperText: widget.helperText,
                 suffixIcon: IconButton(
                   tooltip: 'Abrir calendário',
@@ -306,6 +493,93 @@ class _DsDateFieldState extends State<DsDateField> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Time input shown under the calendar when the field carries a time.
+class _TimeRow extends StatefulWidget {
+  const _TimeRow({
+    required this.value,
+    required this.onChanged,
+    required this.onDone,
+  });
+
+  /// Null until a day is chosen.
+  final TimeOfDay? value;
+  final ValueChanged<TimeOfDay> onChanged;
+  final VoidCallback onDone;
+
+  @override
+  State<_TimeRow> createState() => _TimeRowState();
+}
+
+class _TimeRowState extends State<_TimeRow> {
+  late final TextEditingController _text = TextEditingController(
+    text: _formatted(widget.value),
+  );
+
+  static String _formatted(TimeOfDay? time) {
+    if (time == null) return '';
+    String two(int value) => value.toString().padLeft(2, '0');
+    return '${two(time.hour)}:${two(time.minute)}';
+  }
+
+  @override
+  void didUpdateWidget(_TimeRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // A day was picked or the time changed elsewhere; do not fight typing.
+    final TimeOfDay? typed = DsDate.tryParseTime(_text.text);
+    if (widget.value != typed && widget.value != oldWidget.value) {
+      _text.text = _formatted(widget.value);
+    }
+  }
+
+  @override
+  void dispose() {
+    _text.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final DsColorTokens c = context.dsColors;
+    return Container(
+      width: DsCalendar.width,
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: c.border)),
+      ),
+      padding: const EdgeInsets.all(DsSpacing.s8),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: TextField(
+              controller: _text,
+              enabled: widget.value != null,
+              keyboardType: TextInputType.datetime,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9:]')),
+                LengthLimitingTextInputFormatter(5),
+              ],
+              decoration: const InputDecoration(
+                labelText: 'Hora',
+                hintText: 'hh:mm',
+              ),
+              onChanged: (String text) {
+                final TimeOfDay? time = DsDate.tryParseTime(text);
+                if (time != null) widget.onChanged(time);
+              },
+              onSubmitted: (_) => widget.onDone(),
+            ),
+          ),
+          const SizedBox(width: DsSpacing.s8),
+          DsButton(
+            label: 'Concluir',
+            variant: DsButtonVariant.secondary,
+            onPressed: widget.value == null ? null : widget.onDone,
+          ),
+        ],
       ),
     );
   }

@@ -29,6 +29,8 @@ detalhe.
 ### KPIs e cartões métricos — `DsKpiCard`
 
 - Rótulo, valor em 28 px com algarismos tabulares, variação e contexto.
+- `progress` desenha uma barra para "parte de um total" (por exemplo, 68% do
+  previsto). `delta` é só para variação no tempo; não use um pelo outro.
 - No máximo 4 por linha (2 no tablet, 1 no celular) e uma linha por dashboard.
 - A variação informa contra o quê: "+12,4% vs. setembro". O tom reflete se é
   bom ou ruim para o negócio: "Vencidas +8%" é `danger`, não `success`.

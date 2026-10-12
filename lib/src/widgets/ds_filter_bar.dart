@@ -16,6 +16,7 @@ class DsFilterBar extends StatelessWidget {
     this.onClear,
     this.onApply,
     this.applyLabel = 'Aplicar',
+    this.applying = false,
   });
 
   /// Filter fields. Give each a width (`SizedBox`), search first.
@@ -29,6 +30,10 @@ class DsFilterBar extends StatelessWidget {
   final VoidCallback? onApply;
   final String applyLabel;
 
+  /// The query started by [onApply] is running: the button shows progress and
+  /// ignores presses.
+  final bool applying;
+
   @override
   Widget build(BuildContext context) {
     return Wrap(
@@ -41,6 +46,7 @@ class DsFilterBar extends StatelessWidget {
           DsButton(
             label: applyLabel,
             onPressed: onApply,
+            loading: applying,
             variant: DsButtonVariant.secondary,
           ),
         if (onClear != null && activeCount > 0)
