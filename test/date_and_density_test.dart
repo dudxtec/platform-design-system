@@ -27,7 +27,41 @@ void main() {
       expect(DsDate.tryParse('05/03/20'), isNull);
       expect(DsDate.tryParse('31/02/2026'), isNull);
       expect(DsDate.tryParse('00/01/2026'), isNull);
-      expect(DsDate.tryParse('2026-03-05'), isNull);
+      expect(DsDate.tryParse('2026-02-31'), isNull);
+      expect(DsDate.tryParse('5/3/2026'), isNull);
+    });
+
+    test('also accepts ISO and eight digits', () {
+      expect(DsDate.tryParse('2026-03-05'), DateTime(2026, 3, 5));
+      expect(DsDate.tryParse('05032026'), DateTime(2026, 3, 5));
+      expect(DsDate.tryParse('29/02/2024'), DateTime(2024, 2, 29));
+      expect(DsDate.tryParse('29/02/2025'), isNull);
+    });
+
+    test('parses and formats date with time', () {
+      expect(
+        DsDate.tryParseDateTime('05/03/2026 14:30'),
+        DateTime(2026, 3, 5, 14, 30),
+      );
+      expect(
+        DsDate.tryParseDateTime('2026-03-05T14:30:45'),
+        DateTime(2026, 3, 5, 14, 30, 45),
+      );
+      expect(DsDate.tryParseDateTime('05/03/2026'), DateTime(2026, 3, 5));
+      expect(DsDate.tryParseDateTime('05/03/2026 24:00'), isNull);
+      expect(DsDate.tryParseDateTime('05/03/2026 14:'), isNull);
+      expect(
+        DsDate.formatDateTime(DateTime(2026, 3, 5, 9, 7)),
+        '05/03/2026 09:07',
+      );
+      expect(
+        DsDate.formatDateTime(DateTime(2026, 3, 5, 9, 7, 3)),
+        '05/03/2026 09:07:03',
+      );
+      expect(
+        DsDate.formatDateTime(DateTime(2026, 3, 5, 9, 7), seconds: true),
+        '05/03/2026 09:07:00',
+      );
     });
 
     test('month and full date are in Brazilian Portuguese', () {
@@ -38,18 +72,73 @@ void main() {
       );
       expect(DsDate.full(DateTime(2026, 10, 11)), startsWith('domingo'));
     });
+  });
 
-    test('formatter inserts the slashes and caps at eight digits', () {
-      const DsDateInputFormatter formatter = DsDateInputFormatter();
-      TextEditingValue type(String text) => formatter.formatEditUpdate(
-        TextEditingValue.empty,
-        TextEditingValue(text: text),
+  group('DsDateInputFormatter', () {
+    const DsDateInputFormatter formatter = DsDateInputFormatter();
+
+    TextEditingValue value(String text, [int? cursor]) => TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: cursor ?? text.length),
+    );
+
+    test('adds the separator only when typing at the end', () {
+      expect(formatter.formatEditUpdate(value('2'), value('25')).text, '25/');
+      expect(
+        formatter.formatEditUpdate(value('25/1'), value('25/12')).text,
+        '25/12/',
       );
-      expect(type('2').text, '2');
-      expect(type('2512').text, '25/12');
-      expect(type('25122026').text, '25/12/2026');
-      expect(type('251220269').text, '25/12/2026');
-      expect(type('25/12/2026').text, '25/12/2026');
+      expect(
+        formatter
+            .formatEditUpdate(value('25/12/202'), value('25/12/2026'))
+            .text,
+        '25/12/2026',
+      );
+    });
+
+    test('editing in the middle keeps text and cursor untouched', () {
+      // Replace the month "12" by "1" with the cursor after it.
+      final TextEditingValue edited = value('25/1/2026', 4);
+      final TextEditingValue result = formatter.formatEditUpdate(
+        value('25/12/2026', 5),
+        edited,
+      );
+      expect(result, edited);
+
+      // Deleting the slash does not put it back.
+      final TextEditingValue deleted = value('25', 2);
+      expect(formatter.formatEditUpdate(value('25/'), deleted), deleted);
+    });
+
+    test('pasting is left as it is', () {
+      final TextEditingValue pasted = value('2026-03-05');
+      expect(formatter.formatEditUpdate(value(''), pasted), pasted);
+    });
+
+    test(
+      'refuses characters that cannot be part of a date and extra length',
+      () {
+        expect(
+          formatter.formatEditUpdate(value('25/'), value('25/a')),
+          value('25/'),
+        );
+        expect(
+          formatter.formatEditUpdate(value('25/12/2026'), value('25/12/20261')),
+          value('25/12/2026'),
+        );
+      },
+    );
+
+    test('with time, adds the colon after the hour', () {
+      const DsDateInputFormatter withTime = DsDateInputFormatter(
+        withTime: true,
+      );
+      expect(
+        withTime
+            .formatEditUpdate(value('25/12/2026 1'), value('25/12/2026 14'))
+            .text,
+        '25/12/2026 14:',
+      );
     });
   });
 
@@ -61,7 +150,7 @@ void main() {
       await tester.pumpWidget(
         _app(DsDateField(label: 'Vencimento', onChanged: changes.add)),
       );
-      await tester.enterText(find.byType(TextFormField), '2512');
+      await tester.enterText(find.byType(TextFormField), '25/12');
       expect(changes.last, isNull);
       await tester.enterText(find.byType(TextFormField), '25122026');
       expect(find.text('25/12/2026'), findsOneWidget);
@@ -349,7 +438,7 @@ void main() {
         ),
       );
       // Partial typing is kept while the parent still holds null.
-      await tester.enterText(find.byType(TextFormField), '0510');
+      await tester.enterText(find.byType(TextFormField), '05/10');
       await tester.pump();
       expect(find.text('05/10'), findsOneWidget);
 

@@ -48,6 +48,7 @@ Duas origens:
 | `danger` | Confirmação destrutiva, dentro do diálogo de confirmação |
 
 Tamanhos: `md` (40 px, padrão) e `sm` (32 px, dentro de tabela e barras).
+Abaixo de 900 px de largura o `md` passa a 44 px, o alvo mínimo de toque.
 
 **Estados:** padrão, hover, pressionado, foco, desabilitado, carregando.
 Em `loading: true` o botão fica desabilitado, troca o ícone por um indicador e
@@ -100,7 +101,7 @@ fica associado ao campo.
 
 ### 5.4.1 Campo de data — `DsDateField`
 
-Campo com máscara `dd/mm/aaaa` e calendário em popover preso ao campo.
+Campo de data com calendário em popover preso ao campo.
 
 ```dart
 DsDateField(
@@ -117,16 +118,47 @@ diálogo de cerca de 570 px de altura, que mal cabe num notebook e não cabe no
 iframe do hub. O popover tem 276 x 312 px, não cobre a tela e abre para cima
 quando falta espaço abaixo.
 
-**Comportamento**
-- Digitar é sempre possível e é o caminho mais rápido; a máscara insere as
-  barras.
-- O calendário abre pelo ícone ou com Alt+Seta para baixo; fecha com Esc, ao
-  escolher um dia ou ao clicar fora.
+**Digitação**
+- Digitar é sempre possível e é o caminho mais rápido.
+- **O texto nunca é reescrito enquanto o usuário edita.** Apagar ou trocar um
+  dígito no meio da data deixa o cursor onde está e não desloca os outros
+  dígitos. Estados incompletos são permitidos durante a digitação; a validação
+  aponta o erro.
+- A única ajuda é acrescentar o separador quando se digita no fim do texto:
+  "25" vira "25/".
+- Também são aceitos `aaaa-mm-dd` e oito dígitos colados; ao sair do campo o
+  valor aparece como `dd/mm/aaaa`.
+
+**Calendário**
+- Abre pelo ícone ou com Alt+Seta para baixo; fecha com Esc, ao escolher um dia
+  ou ao clicar fora. Fechar sem escolher conserva o texto.
 - O título do mês abre a grade de anos, para datas distantes (nascimento).
 - "Hoje" seleciona a data atual; "Limpar" aparece em campo opcional preenchido.
 - Dias fora de `firstDate` e `lastDate` ficam desabilitados.
+
+**Callbacks**
 - `onChanged` entrega a data quando o texto é uma data válida dentro do
   intervalo, e `null` quando deixa de ser.
+- `onPicked` avisa quando a data foi escolhida no calendário. Use para salvar na
+  hora, em campos de salvamento automático.
+- `onSubmitted` é o Enter no campo.
+- `controller` e `focusNode` externos, para quem precisa do texto bruto ou de
+  salvar ao perder o foco.
+
+**Data e hora.** `withTime: true` aceita `dd/mm/aaaa hh:mm` (segundos são
+aceitos e preservados; `showSeconds` os exibe sempre). Só a data significa
+00:00. Escolher um dia no calendário conserva a hora que já estava no campo; o
+popover ganha um campo "Hora" e o botão "Concluir".
+
+```dart
+DsDateField(
+  label: 'Pagamento',
+  withTime: true,
+  value: paidAt,
+  onChanged: (date) => paidAt = date,
+  onPicked: (date) => save(),
+)
+```
 
 **Estados:** padrão, foco, preenchido, erro, desabilitado; calendário aberto
 para baixo ou para cima; dia de hoje (contorno), selecionado (preenchido), no
@@ -154,6 +186,7 @@ DsDateRangeField(
 
 **Incorreto**
 - `showDatePicker` ou `showDateRangePicker` direto na tela.
+- Máscara que remonta o texto a cada tecla.
 - Campo somente leitura que obriga a usar o calendário.
 - Um único campo para o período.
 
@@ -166,9 +199,7 @@ dias com Tab, e o caminho previsto para teclado é digitar a data.
 próprio componente, com a semana começando no domingo. Não depende de
 `flutter_localizations` nem do idioma do navegador.
 
-**Fora do escopo:** hora (o forms-portal tem um campo de data e hora) e
-atalhos de período ("Últimos 7 dias", "Este mês"). Entram quando houver o
-segundo uso.
+**Fora do escopo:** atalhos de período ("Últimos 7 dias", "Este mês").
 
 ## 5.5 Modal e Drawer
 
@@ -196,6 +227,8 @@ Fundo `surface`, borda de 1 px, raio 12, sem sombra.
 
 - `DsSectionCard`: título H4, descrição opcional, ações à direita, divisor e
   corpo com padding de 16. `padding: EdgeInsets.zero` quando o corpo é tabela.
+- `collapsible: true` torna o cabeçalho um botão que recolhe o corpo.
+  `onExpansionChanged` permite carregar o conteúdo só na primeira abertura.
 - **Incorreto:** cartão dentro de cartão; sombra para "destacar"; cartão
   clicável sem indicar que é clicável.
 
@@ -263,11 +296,14 @@ Fundo inverso, 12 px, aparece após 400 ms.
 Resultado de uma ação que o usuário acabou de fazer.
 
 - `DsToast.success(context, 'Pessoa salva.')`, `DsToast.error(...)`.
-- 4 s; erro fica 8 s. Um por vez: o novo substitui o anterior.
+- 4 s; erro fica 8 s. Um por vez: o novo substitui o anterior. Tem botão de
+  fechar.
+- Aparece acima de diálogos e gavetas. Mesmo assim, erro de validação de um
+  formulário em diálogo fica dentro do diálogo (inline ou `DsAlert`), não em
+  toast.
 - Frase completa no passado: "Carnê excluído."; com ação "Desfazer" quando for
   possível desfazer.
-- **Incorreto:** `error.toString()`; toast de erro de validação (é inline);
-  toast por trás de um modal.
+- **Incorreto:** `error.toString()`; toast de erro de validação (é inline).
 
 ## 5.14 Stepper
 
@@ -288,7 +324,7 @@ Ver [Dashboards e templates](07-dashboards-e-templates.md).
 |---|---|---|
 | `DsLoadingState` | Primeira carga de página ou seção | Indicador e "Carregando…" |
 | `DsEmptyState` | Não há o que mostrar | Ícone, o que falta, próxima ação |
-| `DsErrorState` | A carga falhou | Mensagem para o usuário e "Tentar novamente" |
+| `DsErrorState` | A carga falhou | Mensagem para o usuário, "Tentar novamente" e, se preciso, uma segunda saída (`secondaryAction`, por exemplo "Sair") |
 
 Recarga com dados já na tela não troca a tela: usa a linha de progresso
 (`DsDataTable.refreshing`).

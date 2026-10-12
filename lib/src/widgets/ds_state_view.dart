@@ -94,12 +94,17 @@ class DsErrorState extends StatelessWidget {
     this.message = 'Verifique sua conexão e tente novamente.',
     this.onRetry,
     this.retryLabel = 'Tentar novamente',
+    this.secondaryAction,
   });
 
   final String title;
   final String? message;
   final VoidCallback? onRetry;
   final String retryLabel;
+
+  /// A way out when retrying is not enough, such as "Sair". Usually a ghost
+  /// `DsButton`.
+  final Widget? secondaryAction;
 
   @override
   Widget build(BuildContext context) {
@@ -113,13 +118,22 @@ class DsErrorState extends StatelessWidget {
         ),
         title: title,
         message: message,
-        action: onRetry == null
+        action: onRetry == null && secondaryAction == null
             ? null
-            : DsButton(
-                label: retryLabel,
-                onPressed: onRetry,
-                variant: DsButtonVariant.secondary,
-                icon: Icons.refresh,
+            : Wrap(
+                alignment: WrapAlignment.center,
+                spacing: DsSpacing.s8,
+                runSpacing: DsSpacing.s8,
+                children: <Widget>[
+                  if (onRetry != null)
+                    DsButton(
+                      label: retryLabel,
+                      onPressed: onRetry,
+                      variant: DsButtonVariant.secondary,
+                      icon: Icons.refresh,
+                    ),
+                  ?secondaryAction,
+                ],
               ),
       ),
     );

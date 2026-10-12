@@ -15,8 +15,9 @@ enum DsDataState { ready, loading, empty, error }
 /// callbacks. When rows are selected the toolbar is replaced by the bulk
 /// action bar.
 ///
-/// Inside a bounded height (`DsPage(scrollable: false)`) the header and the
-/// pagination stay pinned and only the rows scroll.
+/// Inside a bounded height (`DsPage(scrollable: false)`) the toolbar and the
+/// pagination stay pinned and the table scrolls between them. The column
+/// header scrolls with the rows.
 class DsDataTable extends StatelessWidget {
   const DsDataTable({
     super.key,

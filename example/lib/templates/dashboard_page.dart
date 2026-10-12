@@ -79,6 +79,8 @@ class _DashboardPageState extends State<DashboardPage> {
                     DsKpiCard(
                       label: 'Recebidas',
                       value: r'R$ 48.320,00',
+                      progress: 0.68,
+                      progressTone: DsTone.success,
                       delta: '+12,4%',
                       deltaTone: DsTone.success,
                       helper: 'vs. setembro',

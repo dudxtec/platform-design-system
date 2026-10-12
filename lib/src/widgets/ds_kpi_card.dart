@@ -19,6 +19,8 @@ class DsKpiCard extends StatelessWidget {
     this.delta,
     this.deltaTone = DsTone.neutral,
     this.helper,
+    this.progress,
+    this.progressTone = DsTone.primary,
     this.onTap,
   });
 
@@ -34,6 +36,11 @@ class DsKpiCard extends StatelessWidget {
 
   /// For example "vs. mês anterior" or "32 cobranças".
   final String? helper;
+
+  /// Share of a whole, from 0 to 1, drawn as a bar under the value. Use it
+  /// for "part of the total"; use [delta] for change over time.
+  final double? progress;
+  final DsTone progressTone;
 
   /// Drill-down to the list behind the number.
   final VoidCallback? onTap;
@@ -78,6 +85,18 @@ class DsKpiCard extends StatelessWidget {
               style: DsTypography.kpi.copyWith(color: c.textPrimary),
             ),
           ),
+          if (progress != null) ...<Widget>[
+            const SizedBox(height: DsSpacing.s8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(DsRadius.pill),
+              child: LinearProgressIndicator(
+                value: progress!.clamp(0, 1).toDouble(),
+                minHeight: 6,
+                color: c.tone(progressTone).solid,
+                backgroundColor: c.surfaceHover,
+              ),
+            ),
+          ],
           if (delta != null || helper != null) ...<Widget>[
             const SizedBox(height: DsSpacing.s8),
             Row(
@@ -117,7 +136,13 @@ class DsKpiCard extends StatelessWidget {
       ),
     );
 
-    final String semantics = <String>[label, value, ?delta, ?helper].join(', ');
+    final String semantics = <String>[
+      label,
+      value,
+      if (progress != null) '${(progress!.clamp(0, 1) * 100).round()}%',
+      ?delta,
+      ?helper,
+    ].join(', ');
 
     return Semantics(
       container: true,

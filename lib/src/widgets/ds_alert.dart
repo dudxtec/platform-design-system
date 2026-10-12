@@ -53,39 +53,56 @@ class DsAlert extends StatelessWidget {
           borderRadius: BorderRadius.circular(DsRadius.sm),
           border: Border.all(color: colors.border),
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Icon(dsToneIcon(tone), size: DsSizes.iconLg, color: colors.text),
-            const SizedBox(width: DsSpacing.s12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  if (title != null)
-                    Text(
-                      title!,
-                      style: text.titleSmall?.copyWith(color: c.textPrimary),
-                    ),
-                  Text(
-                    message,
-                    style: text.bodyMedium?.copyWith(color: c.textPrimary),
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            // On narrow widths the action goes under the text instead of
+            // squeezing it.
+            final bool stacked = action != null && constraints.maxWidth < 480;
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Icon(
+                  dsToneIcon(tone),
+                  size: DsSizes.iconLg,
+                  color: colors.text,
+                ),
+                const SizedBox(width: DsSpacing.s12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      if (title != null)
+                        Text(
+                          title!,
+                          style: text.titleSmall?.copyWith(
+                            color: c.textPrimary,
+                          ),
+                        ),
+                      Text(
+                        message,
+                        style: text.bodyMedium?.copyWith(color: c.textPrimary),
+                      ),
+                      if (stacked) ...<Widget>[
+                        const SizedBox(height: DsSpacing.s8),
+                        action!,
+                      ],
+                    ],
                   ),
+                ),
+                if (action != null && !stacked) ...<Widget>[
+                  const SizedBox(width: DsSpacing.s12),
+                  action!,
                 ],
-              ),
-            ),
-            if (action != null) ...<Widget>[
-              const SizedBox(width: DsSpacing.s12),
-              action!,
-            ],
-            if (onClose != null)
-              IconButton(
-                onPressed: onClose,
-                tooltip: 'Fechar',
-                icon: const Icon(Icons.close),
-                visualDensity: VisualDensity.compact,
-              ),
-          ],
+                if (onClose != null)
+                  IconButton(
+                    onPressed: onClose,
+                    tooltip: 'Fechar',
+                    icon: const Icon(Icons.close),
+                    visualDensity: VisualDensity.compact,
+                  ),
+              ],
+            );
+          },
         ),
       ),
     );

@@ -1,3 +1,30 @@
+## 0.3.0
+
+Ajustes encontrados ao aplicar a 0.2.0 nos portais.
+
+### Muda o comportamento
+
+* `DsDateField` não reescreve mais o texto durante a digitação: o cursor fica onde está ao editar no meio da data, e datas incompletas são permitidas até a validação. O separador só é acrescentado quando se digita no fim do texto. `DsDateInputFormatter` segue a mesma regra.
+* `DsToast` é desenhado na camada raiz, acima de diálogos e gavetas (antes ficava atrás de diálogos altos). Ganhou botão de fechar e `DsToast.dismiss()`. Não usa mais `SnackBar`.
+* `DsButton` no tamanho padrão e os botões do `DsPagination` passam a 44 px abaixo de 900 px de largura (alvo de toque).
+
+### Adicionado
+
+* `DsDateField`: `withTime` e `showSeconds` (data e hora, com campo de hora no calendário), `controller` e `focusNode` externos, `onPicked` (data escolhida no calendário). Aceita também `aaaa-mm-dd` e oito dígitos, exibidos como `dd/mm/aaaa` ao sair do campo.
+* `DsDate.tryParseDateTime`, `tryParseTime` e `formatDateTime`.
+* `DsSectionCard`: `collapsible`, `initiallyExpanded`, `onExpansionChanged`.
+* `DsErrorState.secondaryAction`.
+* `DsKpiCard.progress` e `progressTone` (parte de um total).
+* `DsFilterBar.applying`.
+* `DsPage.padding`.
+
+### Corrigido
+
+* Esc não fechava o calendário quando ele era aberto pelo ícone.
+* `DsAlert` com ação espremia o texto em telas estreitas: a ação agora vai para baixo do texto.
+* `DsPageHeader` limita o título a duas linhas.
+* Documentação do `DsDataTable`: o cabeçalho das colunas rola com as linhas; só a barra de ferramentas e a paginação ficam fixas.
+
 ## 0.2.0
 
 Fundação do design system. Ver `docs/`.

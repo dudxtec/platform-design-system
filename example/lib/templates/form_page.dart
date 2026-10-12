@@ -17,6 +17,7 @@ class _FormPageState extends State<FormPage> {
   bool _saving = false;
   bool _submitted = false;
   DateTime? _birthDate;
+  DateTime? _nextContact;
 
   String? _required(String? value) =>
       (value == null || value.trim().isEmpty) ? 'Preencha este campo.' : null;
@@ -91,6 +92,7 @@ class _FormPageState extends State<FormPage> {
             const SizedBox(height: DsSpacing.s24),
             DsSectionCard(
               title: 'Contato',
+              collapsible: true,
               description: 'Usado para lembretes de cobrança.',
               child: DsFormGrid(
                 children: <Widget>[
@@ -107,6 +109,14 @@ class _FormPageState extends State<FormPage> {
                       helperText: 'Opcional.',
                     ),
                   ),
+                  DsDateField(
+                    label: 'Próximo contato',
+                    withTime: true,
+                    value: _nextContact,
+                    onChanged: (DateTime? value) =>
+                        setState(() => _nextContact = value),
+                  ),
+                  const SizedBox.shrink(),
                   DsFormFull(
                     child: TextFormField(
                       decoration: const InputDecoration(

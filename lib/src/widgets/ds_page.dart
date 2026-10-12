@@ -18,6 +18,7 @@ class DsPage extends StatelessWidget {
     this.footer,
     this.maxWidth = DsSizes.contentMaxWidth,
     this.scrollable = true,
+    this.padding,
   });
 
   /// Usually a `DsPageHeader`.
@@ -37,6 +38,11 @@ class DsPage extends StatelessWidget {
   /// When false, [child] gets the remaining height and must scroll itself
   /// (tables with a pinned pagination footer).
   final bool scrollable;
+
+  /// Overrides the page margin. Use `EdgeInsets.zero` for content that goes
+  /// edge to edge, such as an embedded frame; the header then needs its own
+  /// padding.
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +76,7 @@ class DsPage extends StatelessWidget {
 
         final Widget body = scrollable
             ? SingleChildScrollView(
-                padding: EdgeInsets.all(gutter),
+                padding: padding ?? EdgeInsets.all(gutter),
                 child: constrain(
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -79,7 +85,7 @@ class DsPage extends StatelessWidget {
                 ),
               )
             : Padding(
-                padding: EdgeInsets.all(gutter),
+                padding: padding ?? EdgeInsets.all(gutter),
                 child: constrain(
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,

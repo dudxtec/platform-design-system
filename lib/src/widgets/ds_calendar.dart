@@ -67,20 +67,71 @@ class DsDate {
         '${date.year.toString().padLeft(4, '0')}';
   }
 
-  /// Parses `dd/mm/aaaa`. Returns null for incomplete text and for dates that
-  /// do not exist (31/02).
+  /// `dd/mm/aaaa hh:mm`, with seconds when [seconds] is true or when they are
+  /// not zero.
+  static String formatDateTime(DateTime date, {bool seconds = false}) {
+    String two(int value) => value.toString().padLeft(2, '0');
+    final String time = '${two(date.hour)}:${two(date.minute)}';
+    final bool withSeconds = seconds || date.second != 0;
+    return '${format(date)} $time${withSeconds ? ':${two(date.second)}' : ''}';
+  }
+
+  static final RegExp _brazilian = RegExp(r'^(\d{2})/(\d{2})/(\d{4})$');
+  static final RegExp _iso = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$');
+  static final RegExp _digits = RegExp(r'^(\d{2})(\d{2})(\d{4})$');
+  static final RegExp _time = RegExp(r'^(\d{1,2}):(\d{2})(?::(\d{2}))?$');
+
+  /// Parses `dd/mm/aaaa`, and also `aaaa-mm-dd` and `ddmmaaaa`. Returns null
+  /// for incomplete text and for dates that do not exist (31/02).
   static DateTime? tryParse(String text) {
-    final Match? match = RegExp(
-      r'^(\d{2})/(\d{2})/(\d{4})$',
-    ).firstMatch(text.trim());
-    if (match == null) return null;
-    final int day = int.parse(match.group(1)!);
-    final int month = int.parse(match.group(2)!);
-    final int year = int.parse(match.group(3)!);
+    final String value = text.trim();
+    int day;
+    int month;
+    int year;
+    Match? match = _brazilian.firstMatch(value) ?? _digits.firstMatch(value);
+    if (match != null) {
+      day = int.parse(match.group(1)!);
+      month = int.parse(match.group(2)!);
+      year = int.parse(match.group(3)!);
+    } else {
+      match = _iso.firstMatch(value);
+      if (match == null) return null;
+      year = int.parse(match.group(1)!);
+      month = int.parse(match.group(2)!);
+      day = int.parse(match.group(3)!);
+    }
     final DateTime date = DateTime(year, month, day);
     final bool exists =
         date.year == year && date.month == month && date.day == day;
     return exists ? date : null;
+  }
+
+  /// Parses `hh:mm` (24 hours); seconds are accepted and ignored.
+  static TimeOfDay? tryParseTime(String text) {
+    final (int, int, int)? parts = _timeParts(text);
+    return parts == null ? null : TimeOfDay(hour: parts.$1, minute: parts.$2);
+  }
+
+  static (int, int, int)? _timeParts(String text) {
+    final Match? match = _time.firstMatch(text.trim());
+    if (match == null) return null;
+    final int hour = int.parse(match.group(1)!);
+    final int minute = int.parse(match.group(2)!);
+    final int second = int.parse(match.group(3) ?? '0');
+    if (hour > 23 || minute > 59 || second > 59) return null;
+    return (hour, minute, second);
+  }
+
+  /// Parses a date followed by an optional time, separated by a space or
+  /// `T`. A date alone means midnight.
+  static DateTime? tryParseDateTime(String text) {
+    final String value = text.trim();
+    final int split = value.indexOf(RegExp('[ T]'));
+    if (split < 0) return tryParse(value);
+    final DateTime? date = tryParse(value.substring(0, split));
+    final (int, int, int)? time = _timeParts(value.substring(split + 1));
+    if (date == null || time == null) return null;
+    return DateTime(date.year, date.month, date.day, time.$1, time.$2, time.$3);
   }
 }
 

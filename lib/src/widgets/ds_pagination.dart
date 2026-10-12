@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../tokens/ds_breakpoints.dart';
 import '../tokens/ds_color_tokens.dart';
 import '../tokens/ds_density.dart';
+import '../tokens/ds_foundations.dart';
 import '../tokens/ds_spacing.dart';
 
 /// Footer of a paginated list: range, page size and page navigation.
@@ -42,14 +44,21 @@ class DsPagination extends StatelessWidget {
     final bool hasPrevious = page > 1;
     final bool hasNext = page < pageCount;
     final bool compact = DsDensity.of(context).isCompact;
+    // Touch layouts keep the 44 px target even on short viewports.
+    final bool touch = MediaQuery.sizeOf(context).width < DsBreakpoints.tablet;
 
     Widget nav(String tooltip, IconData icon, int target, bool enabled) {
       return IconButton(
         tooltip: tooltip,
         icon: Icon(icon),
-        visualDensity: VisualDensity.compact,
-        padding: compact ? EdgeInsets.zero : null,
-        constraints: compact
+        visualDensity: touch ? VisualDensity.standard : VisualDensity.compact,
+        padding: touch || compact ? EdgeInsets.zero : null,
+        constraints: touch
+            ? const BoxConstraints.tightFor(
+                width: DsSizes.touchTarget,
+                height: DsSizes.touchTarget,
+              )
+            : compact
             ? const BoxConstraints.tightFor(width: 32, height: 32)
             : null,
         onPressed: enabled ? () => onPageChanged(target) : null,
