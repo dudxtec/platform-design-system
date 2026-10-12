@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:platform_design_system/platform_design_system.dart';
@@ -12,6 +14,14 @@ Widget _buildWithSize(double width, Widget child) {
       child: Scaffold(body: child),
     ),
   );
+}
+
+// LayoutBuilder-based widgets read the real surface, not MediaQuery, so the
+// test view has to be resized too.
+void _setSurface(WidgetTester tester, double width) {
+  tester.view.physicalSize = Size(width, 800);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
 }
 
 void main() {
@@ -61,7 +71,11 @@ void main() {
 
     test('light() inputDecorationTheme uses DsColors.inputFill', () {
       final theme = DsTheme.light();
-      expect(theme.inputDecorationTheme.fillColor, DsColors.inputFill);
+      final Color? fill = theme.inputDecorationTheme.fillColor;
+      expect(
+        WidgetStateProperty.resolveAs<Color?>(fill, <WidgetState>{}),
+        DsColors.inputFill,
+      );
     });
   });
 
@@ -88,11 +102,7 @@ void main() {
         MaterialApp(
           theme: DsTheme.light(),
           home: const Scaffold(
-            body: DsStatChip(
-              label: 'Erros',
-              value: '3',
-              color: DsColors.error,
-            ),
+            body: DsStatChip(label: 'Erros', value: '3', color: DsColors.error),
           ),
         ),
       );
@@ -110,14 +120,12 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: DsTheme.light(),
-          home: const Scaffold(
-            body: DsPrimaryButton(label: 'Salvar'),
-          ),
+          home: const Scaffold(body: DsPrimaryButton(label: 'Salvar')),
         ),
       );
 
       expect(find.text('Salvar'), findsOneWidget);
-      expect(find.byType(ElevatedButton), findsOneWidget);
+      expect(find.byType(FilledButton), findsOneWidget);
     });
 
     testWidgets('renders with icon', (WidgetTester tester) async {
@@ -125,10 +133,7 @@ void main() {
         MaterialApp(
           theme: DsTheme.light(),
           home: const Scaffold(
-            body: DsPrimaryButton(
-              label: 'Adicionar',
-              icon: Icons.add,
-            ),
+            body: DsPrimaryButton(label: 'Adicionar', icon: Icons.add),
           ),
         ),
       );
@@ -143,10 +148,7 @@ void main() {
         MaterialApp(
           theme: DsTheme.light(),
           home: Scaffold(
-            body: DsPrimaryButton(
-              label: 'OK',
-              onPressed: () => called = true,
-            ),
+            body: DsPrimaryButton(label: 'OK', onPressed: () => called = true),
           ),
         ),
       );
@@ -164,9 +166,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: DsTheme.light(),
-          home: const Scaffold(
-            body: DsOutlinedButton(label: 'Cancelar'),
-          ),
+          home: const Scaffold(body: DsOutlinedButton(label: 'Cancelar')),
         ),
       );
 
@@ -179,10 +179,7 @@ void main() {
         MaterialApp(
           theme: DsTheme.light(),
           home: const Scaffold(
-            body: DsOutlinedButton(
-              label: 'Editar',
-              icon: Icons.edit,
-            ),
+            body: DsOutlinedButton(label: 'Editar', icon: Icons.edit),
           ),
         ),
       );
@@ -229,6 +226,7 @@ void main() {
   group('DsScreenSizeContext', () {
     testWidgets('returns mobile when width < 600', (WidgetTester tester) async {
       DsScreenSize? resolved;
+      _setSurface(tester, 400);
       await tester.pumpWidget(
         _buildWithSize(
           400,
@@ -243,9 +241,11 @@ void main() {
       expect(resolved, DsScreenSize.mobile);
     });
 
-    testWidgets('returns tablet when 600 ≤ width < 900',
-        (WidgetTester tester) async {
+    testWidgets('returns tablet when 600 ≤ width < 900', (
+      WidgetTester tester,
+    ) async {
       DsScreenSize? resolved;
+      _setSurface(tester, 700);
       await tester.pumpWidget(
         _buildWithSize(
           700,
@@ -260,8 +260,11 @@ void main() {
       expect(resolved, DsScreenSize.tablet);
     });
 
-    testWidgets('returns desktop when width ≥ 900', (WidgetTester tester) async {
+    testWidgets('returns desktop when width ≥ 900', (
+      WidgetTester tester,
+    ) async {
       DsScreenSize? resolved;
+      _setSurface(tester, 1200);
       await tester.pumpWidget(
         _buildWithSize(
           1200,
@@ -276,9 +279,11 @@ void main() {
       expect(resolved, DsScreenSize.desktop);
     });
 
-    testWidgets('isMobile / isTablet / isDesktop helpers',
-        (WidgetTester tester) async {
+    testWidgets('isMobile / isTablet / isDesktop helpers', (
+      WidgetTester tester,
+    ) async {
       bool? mobile, tablet, desktop;
+      _setSurface(tester, 1024);
       await tester.pumpWidget(
         _buildWithSize(
           1024,
@@ -302,8 +307,10 @@ void main() {
   // DsResponsiveLayout
   // ---------------------------------------------------------------------------
   group('DsResponsiveLayout', () {
-    testWidgets('renders mobile widget on narrow screen',
-        (WidgetTester tester) async {
+    testWidgets('renders mobile widget on narrow screen', (
+      WidgetTester tester,
+    ) async {
+      _setSurface(tester, 400);
       await tester.pumpWidget(
         _buildWithSize(
           400,
@@ -318,8 +325,10 @@ void main() {
       expect(find.text('tablet'), findsNothing);
     });
 
-    testWidgets('renders tablet widget on medium screen',
-        (WidgetTester tester) async {
+    testWidgets('renders tablet widget on medium screen', (
+      WidgetTester tester,
+    ) async {
+      _setSurface(tester, 700);
       await tester.pumpWidget(
         _buildWithSize(
           700,
@@ -333,8 +342,10 @@ void main() {
       expect(find.text('tablet'), findsOneWidget);
     });
 
-    testWidgets('renders desktop widget on wide screen',
-        (WidgetTester tester) async {
+    testWidgets('renders desktop widget on wide screen', (
+      WidgetTester tester,
+    ) async {
+      _setSurface(tester, 1200);
       await tester.pumpWidget(
         _buildWithSize(
           1200,
@@ -348,19 +359,19 @@ void main() {
       expect(find.text('desktop'), findsOneWidget);
     });
 
-    testWidgets('falls back to mobile when tablet and desktop are null',
-        (WidgetTester tester) async {
+    testWidgets('falls back to mobile when tablet and desktop are null', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        _buildWithSize(
-          1200,
-          const DsResponsiveLayout(mobile: Text('mobile')),
-        ),
+        _buildWithSize(1200, const DsResponsiveLayout(mobile: Text('mobile'))),
       );
       expect(find.text('mobile'), findsOneWidget);
     });
 
-    testWidgets('desktop falls back to tablet when desktop is null',
-        (WidgetTester tester) async {
+    testWidgets('desktop falls back to tablet when desktop is null', (
+      WidgetTester tester,
+    ) async {
+      _setSurface(tester, 1200);
       await tester.pumpWidget(
         _buildWithSize(
           1200,
@@ -378,9 +389,11 @@ void main() {
   // DsResponsiveBuilder
   // ---------------------------------------------------------------------------
   group('DsResponsiveBuilder', () {
-    testWidgets('exposes correct DsScreenSize to builder',
-        (WidgetTester tester) async {
+    testWidgets('exposes correct DsScreenSize to builder', (
+      WidgetTester tester,
+    ) async {
       DsScreenSize? captured;
+      _setSurface(tester, 500);
       await tester.pumpWidget(
         _buildWithSize(
           500,
@@ -418,9 +431,12 @@ void main() {
       expect(value.resolve(DsScreenSize.desktop), 1);
     });
 
-    testWidgets('of(context) resolves via MediaQuery', (WidgetTester tester) async {
+    testWidgets('of(context) resolves via MediaQuery', (
+      WidgetTester tester,
+    ) async {
       int? resolved;
       const value = DsResponsiveValue<int>(mobile: 10, tablet: 20, desktop: 30);
+      _setSurface(tester, 1000);
       await tester.pumpWidget(
         _buildWithSize(
           1000,

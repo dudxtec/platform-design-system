@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'ds_button.dart';
+
+@Deprecated('Use DsButton(variant: DsButtonVariant.primary).')
 class DsPrimaryButton extends StatelessWidget {
   const DsPrimaryButton({
     super.key,
@@ -14,14 +17,6 @@ class DsPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (icon == null) {
-      return ElevatedButton(onPressed: onPressed, child: Text(label));
-    }
-
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, size: 18),
-      label: Text(label),
-    );
+    return DsButton(label: label, onPressed: onPressed, icon: icon);
   }
 }

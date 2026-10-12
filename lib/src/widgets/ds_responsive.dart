@@ -90,11 +90,7 @@ class DsResponsiveLayout extends StatelessWidget {
 /// final count = columns.resolve(DsScreenSize.tablet); // explicit
 /// ```
 class DsResponsiveValue<T> {
-  const DsResponsiveValue({
-    required this.mobile,
-    this.tablet,
-    this.desktop,
-  });
+  const DsResponsiveValue({required this.mobile, this.tablet, this.desktop});
 
   /// Value used on mobile screens.
   final T mobile;

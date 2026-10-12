@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+/// Static colours of the light theme, kept for existing consumers.
+///
+/// These constants do not follow the active theme. New code reads
+/// `context.dsColors` (`DsColorTokens`) instead, which resolves per
+/// brightness.
 class DsColors {
   DsColors._();
 

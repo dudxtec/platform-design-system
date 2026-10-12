@@ -16,6 +16,14 @@ class DsBreakpoints {
 
   /// Maximum width (exclusive) considered a tablet screen.
   static const double tablet = 900;
+
+  /// Below this width the sidebar starts collapsed, so that tables keep
+  /// their columns on small notebooks and scaled displays.
+  static const double wide = 1280;
+
+  /// Viewports shorter than this use the compact density. Covers 1366x768
+  /// and 1920x1080 at 125% or 150% scaling once browser chrome is discounted.
+  static const double shortHeight = 800;
 }
 
 /// Convenience extensions on [BuildContext] for reading the current
