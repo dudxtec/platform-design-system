@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/ds_color_tokens.dart';
+import '../tokens/ds_density.dart';
 import '../tokens/ds_foundations.dart';
 import '../tokens/ds_radius.dart';
 import '../tokens/ds_spacing.dart';
@@ -44,7 +45,9 @@ class DsKpiCard extends StatelessWidget {
     final DsToneColors tone = c.tone(deltaTone);
 
     final Widget content = Padding(
-      padding: const EdgeInsets.all(DsSpacing.s16),
+      padding: EdgeInsets.all(
+        DsDensity.of(context).isCompact ? DsSpacing.s12 : DsSpacing.s16,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,

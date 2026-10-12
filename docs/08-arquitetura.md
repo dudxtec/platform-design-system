@@ -100,7 +100,7 @@ Nas pastas `presentation/` dos portais é proibido:
 - `DsColors.*` em código novo; use `context.dsColors`.
 
 A aplicação automática dessas regras (lint customizado ou verificação por
-`grep` no CI) está no plano de migração.
+`grep` no CI) faz parte da adoção em cada portal.
 
 ## 8.6 Correspondência com os arquivos pedidos
 

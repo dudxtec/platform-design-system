@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/ds_color_tokens.dart';
+import '../tokens/ds_density.dart';
 import '../tokens/ds_spacing.dart';
 
 /// Footer of a paginated list: range, page size and page navigation.
@@ -40,20 +41,25 @@ class DsPagination extends StatelessWidget {
     final int last = (page * pageSize).clamp(0, totalItems);
     final bool hasPrevious = page > 1;
     final bool hasNext = page < pageCount;
+    final bool compact = DsDensity.of(context).isCompact;
 
     Widget nav(String tooltip, IconData icon, int target, bool enabled) {
       return IconButton(
         tooltip: tooltip,
         icon: Icon(icon),
         visualDensity: VisualDensity.compact,
+        padding: compact ? EdgeInsets.zero : null,
+        constraints: compact
+            ? const BoxConstraints.tightFor(width: 32, height: 32)
+            : null,
         onPressed: enabled ? () => onPageChanged(target) : null,
       );
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
+      padding: EdgeInsets.symmetric(
         horizontal: DsSpacing.s16,
-        vertical: DsSpacing.s8,
+        vertical: compact ? DsSpacing.s4 : DsSpacing.s8,
       ),
       child: Wrap(
         alignment: WrapAlignment.spaceBetween,

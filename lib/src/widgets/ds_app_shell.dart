@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../tokens/ds_breakpoints.dart';
 import '../tokens/ds_color_tokens.dart';
+import '../tokens/ds_density.dart';
 import '../tokens/ds_foundations.dart';
 import '../tokens/ds_radius.dart';
 import '../tokens/ds_spacing.dart';
@@ -47,6 +48,8 @@ class DsAppShell extends StatefulWidget {
     this.topBarActions = const <Widget>[],
     this.sidebarFooter,
     this.embedded = false,
+    this.sidebarCollapsed,
+    this.onSidebarCollapsedChanged,
   });
 
   final Widget body;
@@ -62,12 +65,19 @@ class DsAppShell extends StatefulWidget {
   final Widget? sidebarFooter;
   final bool embedded;
 
+  /// The stored preference of the user. When null the sidebar starts
+  /// collapsed below `DsBreakpoints.wide` and expanded above it.
+  final bool? sidebarCollapsed;
+
+  /// Called when the user toggles the sidebar, so the portal can persist it.
+  final ValueChanged<bool>? onSidebarCollapsedChanged;
+
   @override
   State<DsAppShell> createState() => _DsAppShellState();
 }
 
 class _DsAppShellState extends State<DsAppShell> {
-  bool _collapsed = false;
+  bool? _toggled;
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +85,10 @@ class _DsAppShellState extends State<DsAppShell> {
 
     final DsColorTokens c = context.dsColors;
     final bool desktop = context.isDesktop;
+    final bool collapsed =
+        _toggled ??
+        widget.sidebarCollapsed ??
+        MediaQuery.sizeOf(context).width < DsBreakpoints.wide;
 
     Widget nav({required bool collapsed, VoidCallback? afterTap}) {
       return _DsSidebar(
@@ -91,17 +105,21 @@ class _DsAppShellState extends State<DsAppShell> {
 
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: DsDensity.of(context).topBarHeight,
         automaticallyImplyLeading: false,
         titleSpacing: 0,
         leading: Builder(
           builder: (BuildContext context) {
             return IconButton(
               tooltip: desktop
-                  ? (_collapsed ? 'Expandir menu' : 'Recolher menu')
+                  ? (collapsed ? 'Expandir menu' : 'Recolher menu')
                   : 'Abrir menu',
               icon: const Icon(Icons.menu),
               onPressed: desktop
-                  ? () => setState(() => _collapsed = !_collapsed)
+                  ? () {
+                      setState(() => _toggled = !collapsed);
+                      widget.onSidebarCollapsedChanged?.call(!collapsed);
+                    }
                   : () => Scaffold.of(context).openDrawer(),
             );
           },
@@ -134,7 +152,7 @@ class _DsAppShellState extends State<DsAppShell> {
             AnimatedContainer(
               duration: DsMotion.base,
               curve: DsMotion.standard,
-              width: _collapsed
+              width: collapsed
                   ? DsSizes.sidebarCollapsedWidth
                   : DsSizes.sidebarWidth,
               decoration: BoxDecoration(
@@ -146,13 +164,13 @@ class _DsAppShellState extends State<DsAppShell> {
               child: ClipRect(
                 child: OverflowBox(
                   alignment: Alignment.centerLeft,
-                  minWidth: _collapsed
+                  minWidth: collapsed
                       ? DsSizes.sidebarCollapsedWidth
                       : DsSizes.sidebarWidth,
-                  maxWidth: _collapsed
+                  maxWidth: collapsed
                       ? DsSizes.sidebarCollapsedWidth
                       : DsSizes.sidebarWidth,
-                  child: nav(collapsed: _collapsed),
+                  child: nav(collapsed: collapsed),
                 ),
               ),
             ),

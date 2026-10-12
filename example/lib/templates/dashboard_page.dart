@@ -2,12 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:platform_design_system/platform_design_system.dart';
 
 /// Template: Dashboard. KPIs first, then alerts and pending work, then detail.
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  DateTime? _from = DateTime(2026, 10);
+  DateTime? _to = DateTime(2026, 10, 31);
 
   @override
   Widget build(BuildContext context) {
     return DsPage(
+      filters: DsFilterBar(
+        onApply: () => DsToast.show(context, 'Período aplicado.'),
+        children: <Widget>[
+          DsDateRangeField(
+            start: _from,
+            end: _to,
+            onChanged: (DateTime? start, DateTime? end) => setState(() {
+              _from = start;
+              _to = end;
+            }),
+          ),
+        ],
+      ),
       header: DsPageHeader(
         title: 'Financeiro',
         subtitle: 'Outubro de 2026',

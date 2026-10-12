@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../tokens/ds_breakpoints.dart';
 import '../tokens/ds_color_tokens.dart';
+import '../tokens/ds_density.dart';
 import '../tokens/ds_foundations.dart';
 import '../tokens/ds_spacing.dart';
 
@@ -99,6 +100,21 @@ class DsPageHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextTheme text = Theme.of(context).textTheme;
     final DsColorTokens c = context.dsColors;
+    final bool compact = DsDensity.of(context).isCompact;
+
+    final Widget heading = Semantics(
+      header: true,
+      child: Text(
+        title,
+        style: compact ? text.headlineSmall : text.headlineMedium,
+      ),
+    );
+    final Widget? supporting = subtitle == null
+        ? null
+        : Text(
+            subtitle!,
+            style: text.bodyMedium?.copyWith(color: c.textSecondary),
+          );
 
     final Widget titleBlock = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,22 +129,23 @@ class DsPageHeader extends StatelessWidget {
           const SizedBox(width: DsSpacing.s8),
         ],
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Semantics(
-                header: true,
-                child: Text(title, style: text.headlineMedium),
-              ),
-              if (subtitle != null) ...<Widget>[
-                const SizedBox(height: DsSpacing.s4),
-                Text(
-                  subtitle!,
-                  style: text.bodyMedium?.copyWith(color: c.textSecondary),
+          // Compact puts the subtitle beside the title to save a line.
+          child: compact
+              ? Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: DsSpacing.s12,
+                  children: <Widget>[heading, ?supporting],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    heading,
+                    if (supporting != null) ...<Widget>[
+                      const SizedBox(height: DsSpacing.s4),
+                      supporting,
+                    ],
+                  ],
                 ),
-              ],
-            ],
-          ),
         ),
       ],
     );
@@ -170,7 +187,11 @@ class DsHeaderLayout extends StatelessWidget {
           children: <Widget>[
             if (breadcrumb != null) ...<Widget>[
               breadcrumb!,
-              const SizedBox(height: DsSpacing.s8),
+              SizedBox(
+                height: DsDensity.of(context).isCompact
+                    ? DsSpacing.s4
+                    : DsSpacing.s8,
+              ),
             ],
             if (stacked || actions == null) ...<Widget>[
               title,

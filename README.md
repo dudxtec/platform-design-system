@@ -43,11 +43,11 @@ MaterialApp(
 
 | Camada | Conteúdo |
 |---|---|
-| Tokens | `DsPalette`, `DsColorTokens` (`context.dsColors`), `DsTypography`, `DsSpacing`, `DsRadius`, `DsSizes`, `DsElevation`, `DsLayer`, `DsMotion`, `DsBreakpoints` |
+| Tokens | `DsDensity`, `DsPalette`, `DsColorTokens` (`context.dsColors`), `DsTypography`, `DsSpacing`, `DsRadius`, `DsSizes`, `DsElevation`, `DsLayer`, `DsMotion`, `DsBreakpoints` |
 | Tema | `DsTheme.light()`, `DsTheme.dark()` |
 | Layout | `DsAppShell`, `DsPage`, `DsPageHeader`, `DsBreadcrumb`, `DsSectionCard`, `DsFilterBar`, `DsResponsiveLayout` |
 | Dados | `DsDataTable`, `DsPagination`, `DsKpiCard`, `DsBadge`, `DsStatChip` |
-| Formulário | `DsButton`, `DsFormGrid`, `DsFieldLabel`, `DsFormActions` |
+| Formulário | `DsButton`, `DsDateField`, `DsDateRangeField`, `DsCalendar`, `DsFormGrid`, `DsFieldLabel`, `DsFormActions` |
 | Feedback | `DsAlert`, `DsToast`, `DsConfirmDialog`, `DsEmptyState`, `DsErrorState`, `DsLoadingState` |
 
 Campos, seleção, abas, menus, tooltip e seletor de data são os widgets Material,

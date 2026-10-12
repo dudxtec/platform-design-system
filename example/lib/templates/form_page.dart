@@ -16,6 +16,7 @@ class _FormPageState extends State<FormPage> {
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   bool _saving = false;
   bool _submitted = false;
+  DateTime? _birthDate;
 
   String? _required(String? value) =>
       (value == null || value.trim().isEmpty) ? 'Preencha este campo.' : null;
@@ -77,12 +78,12 @@ class _FormPageState extends State<FormPage> {
                     keyboardType: TextInputType.number,
                     validator: _required,
                   ),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      label: DsFieldLabel('Data de nascimento'),
-                      hintText: 'dd/mm/aaaa',
-                      suffixIcon: Icon(Icons.calendar_today_outlined),
-                    ),
+                  DsDateField(
+                    label: 'Data de nascimento',
+                    value: _birthDate,
+                    lastDate: DateTime.now(),
+                    onChanged: (DateTime? value) =>
+                        setState(() => _birthDate = value),
                   ),
                 ],
               ),

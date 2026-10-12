@@ -21,6 +21,10 @@ Fundação do design system. Ver `docs/`.
 * Estilos `DsTypography.table`, `tableHeader`, `menu`, `kpi`, `code`.
 * Temas de diálogo, bottom sheet, drawer, snackbar, tooltip, abas, chip, tabela, menus, seletor de data, progresso, lista e barra de rolagem.
 * Componentes: `DsButton`, `DsBadge`, `DsAlert`, `DsToast`, `DsConfirmDialog`, `DsEmptyState`, `DsErrorState`, `DsLoadingState`, `DsAppShell`, `DsPage`, `DsPageHeader`, `DsBreadcrumb`, `DsSectionCard`, `DsKpiCard`, `DsPagination`, `DsFilterBar`, `DsDataTable`, `DsFormGrid`, `DsFieldLabel`, `DsFormActions`.
+* `DsDateField`, `DsDateRangeField` e `DsCalendar`: campo de data com máscara e calendário em popover.
+* `DsDensity` e `DsDensityScope`: densidade compacta automática em viewports com menos de 800 px de altura (notebooks de 14 e 15 polegadas).
+* `DsAppShell`: sidebar começa recolhida abaixo de 1280 px; `sidebarCollapsed` e `onSidebarCollapsedChanged` para guardar a preferência.
+* `DsBreakpoints.wide` e `DsBreakpoints.shortHeight`.
 * Galeria em `example/` e documentação em `docs/`.
 * Testes de contraste WCAG AA sobre os tokens semânticos.
 

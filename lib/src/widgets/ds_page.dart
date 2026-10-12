@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/ds_breakpoints.dart';
+import '../tokens/ds_density.dart';
 import '../tokens/ds_foundations.dart';
 import '../tokens/ds_spacing.dart';
 
@@ -41,9 +42,10 @@ class DsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
+        final DsDensity density = DsDensity.of(context);
         final double gutter = constraints.maxWidth < DsBreakpoints.mobile
             ? DsSpacing.s16
-            : DsSpacing.s24;
+            : density.pageGutter;
 
         Widget constrain(Widget content) {
           return Align(
@@ -58,11 +60,11 @@ class DsPage extends StatelessWidget {
         final List<Widget> top = <Widget>[
           if (header != null) ...<Widget>[
             header!,
-            const SizedBox(height: DsSpacing.s24),
+            SizedBox(height: density.headerGap),
           ],
           if (filters != null) ...<Widget>[
             filters!,
-            const SizedBox(height: DsSpacing.s16),
+            SizedBox(height: density.sectionGap),
           ],
         ];
 

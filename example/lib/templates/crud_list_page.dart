@@ -262,11 +262,13 @@ class _CrudListPageState extends State<CrudListPage> {
                       IconButton(
                         tooltip: 'Editar ${pageItems[i].name}',
                         icon: const Icon(Icons.edit_outlined),
+                        visualDensity: VisualDensity.compact,
                         onPressed: () {},
                       ),
                       IconButton(
                         tooltip: 'Mais ações',
                         icon: const Icon(Icons.more_horiz),
+                        visualDensity: VisualDensity.compact,
                         onPressed: () {},
                       ),
                     ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/ds_color_tokens.dart';
+import '../tokens/ds_density.dart';
 import '../tokens/ds_spacing.dart';
 import 'ds_button.dart';
 import 'ds_state_view.dart';
@@ -62,6 +63,7 @@ class DsDataTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DsColorTokens c = context.dsColors;
+    final DsDensity density = DsDensity.of(context);
 
     return Card(
       child: LayoutBuilder(
@@ -87,6 +89,9 @@ class DsDataTable extends StatelessWidget {
                     sortAscending: sortAscending,
                     onSelectAll: onSelectAll,
                     showCheckboxColumn: onSelectAll != null,
+                    headingRowHeight: density.tableHeaderHeight,
+                    dataRowMinHeight: density.tableRowHeight,
+                    dataRowMaxHeight: density.tableRowHeight,
                   ),
                 ),
               );
@@ -120,7 +125,9 @@ class DsDataTable extends StatelessWidget {
                 )
               else if (toolbar != null)
                 Padding(
-                  padding: const EdgeInsets.all(DsSpacing.s12),
+                  padding: EdgeInsets.all(
+                    density.isCompact ? DsSpacing.s8 : DsSpacing.s12,
+                  ),
                   child: toolbar,
                 ),
               if (selecting || toolbar != null) const Divider(),

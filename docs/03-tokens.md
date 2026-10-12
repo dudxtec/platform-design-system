@@ -223,4 +223,5 @@ alvo de toque 44, largura máxima de conteúdo 1280 e de formulário 760, diálo
 400/560/720, gaveta 480.
 
 Breakpoints (`DsBreakpoints`): celular abaixo de 600, tablet de 600 a 899,
-desktop a partir de 900.
+desktop a partir de 900. `wide` (1280) e `shortHeight` (800) tratam notebooks;
+ver [Layout](04-layout.md#45-notebooks-de-14-e-15-polegadas).

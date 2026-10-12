@@ -139,3 +139,77 @@ DsAppShell(
   ),
 )
 ```
+
+## 4.5 Notebooks de 14 e 15 polegadas
+
+A maior parte dos usuários trabalha em notebook. O que limita essas telas é a
+altura, não a largura.
+
+| Tela | Escala | Viewport aproximado do navegador |
+|---|---|---|
+| 1366 x 768 | 100% | 1366 x 650 |
+| 1920 x 1080 (14") | 150% | 1280 x 600 |
+| 1920 x 1080 (15,6") | 125% | 1536 x 740 |
+| Monitor 1920 x 1080 | 100% | 1920 x 950 |
+
+Dentro do iframe do hub a altura ainda perde a top bar do main-portal.
+
+### Densidade compacta
+
+`DsDensity.of(context)` devolve `compact` quando o viewport tem menos de
+800 px de altura (`DsBreakpoints.shortHeight`). Os componentes se ajustam
+sozinhos; nenhuma tela precisa tratar isso.
+
+| Item | Confortável | Compacto |
+|---|---|---|
+| Top bar | 56 | 48 |
+| Margem da página | 24 | 16 |
+| Cabeçalho até filtros | 24 | 12 |
+| Filtros até conteúdo | 16 | 12 |
+| Título da página | 24 px; subtítulo na linha de baixo | 20 px; subtítulo ao lado |
+| Linha de tabela | 44 | 36 |
+| Cabeçalho de tabela | 40 | 36 |
+| Rodapé de paginação | 56 | 40 |
+| Padding do cartão de KPI | 16 | 12 |
+
+Resultado na listagem padrão em 1280 x 600: 9 linhas visíveis com cabeçalho,
+filtros e paginação na tela, contra cerca de 5 na densidade confortável.
+
+Campos e botões continuam com 40 px: reduzir o alvo de clique não compensa o
+ganho.
+
+Para forçar uma densidade (preferência do usuário, por exemplo):
+
+```dart
+DsDensityScope(density: DsDensity.compact, child: app)
+```
+
+### Largura
+
+- Abaixo de 1280 px (`DsBreakpoints.wide`) a sidebar começa recolhida em 64 px.
+  Isso cobre 1366 x 768 com zoom de 125% e janelas lado a lado.
+- A escolha do usuário prevalece. O portal guarda a preferência e a devolve:
+
+```dart
+DsAppShell(
+  sidebarCollapsed: prefs.sidebarCollapsed,          // null = automático
+  onSidebarCollapsedChanged: prefs.setSidebarCollapsed,
+  ...
+)
+```
+
+### Regras para as telas
+
+- Listagem usa `DsPage(scrollable: false)`: cabeçalho e paginação ficam fixos e
+  só as linhas rolam. Nunca duas barras de rolagem verticais.
+- Ações de linha em tabela usam `IconButton` com
+  `visualDensity: VisualDensity.compact`, para caber na linha de 36 px.
+- Formulário longo rola por inteiro, com as ações fixas no rodapé
+  (`DsPage.footer`).
+- Diálogo tem no máximo 5 campos; acima disso é página. Conteúdo de diálogo
+  sempre rolável.
+- Nada com altura fixa maior que 400 px (o `TabBarView` de 520 px do reports
+  não cabe).
+- O calendário do `DsDateField` tem 312 px e abre para cima quando não há
+  espaço abaixo.
+- Teste toda tela nova em 1280 x 600.

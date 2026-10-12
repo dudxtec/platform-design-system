@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:platform_design_system/platform_design_system.dart';
 
 import 'templates/components_page.dart';
@@ -67,6 +68,9 @@ class _GalleryAppState extends State<GalleryApp> {
     return MaterialApp(
       title: 'Design System',
       debugShowCheckedModeBanner: false,
+      locale: const Locale('pt', 'BR'),
+      supportedLocales: const <Locale>[Locale('pt', 'BR')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       theme: DsTheme.light(),
       darkTheme: DsTheme.dark(),
       themeMode: _mode,

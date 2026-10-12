@@ -16,7 +16,7 @@ Duas origens:
 | Input, Textarea | `TextFormField` + tema | Tema cobre todos os estados; `OutlineInputBorder()` local some |
 | Select | `DropdownButtonFormField` + tema | person simulava com `PopupMenuButton` sem teclado |
 | Autocomplete | `Autocomplete` / `DropdownMenu` com filtro + tema | Sem duplicação que justifique invólucro ainda |
-| DatePicker | `showDatePicker` + tema; campo com máscara | Campo com máscara é candidato à 0.3 (duas implementações hoje) |
+| DatePicker | `DsDateField`, `DsDateRangeField`, `DsCalendar` | Cinco implementações de campo de data (forms, reports, person, duas no membership) |
 | Modal | `AlertDialog` + tema; `DsConfirmDialog` | Confirmação reimplementada em membership, tenant e forms |
 | Drawer | `Drawer` (end) + tema, 480 px | Só tema; sem uso atual que peça componente |
 | Card | `Card` + tema; `DsSectionCard` | "Cartão com título" copiado 5 vezes no person |
@@ -95,10 +95,80 @@ fica associado ao campo.
 - **Select:** até cerca de 10 opções fixas. `DropdownButtonFormField`.
 - **Autocomplete:** mais de 10 opções ou busca no servidor. Mostra "Nenhum
   resultado" e estado de carregamento; busca com debounce de 300 ms.
-- **DatePicker:** campo de texto com máscara `dd/mm/aaaa` e ícone de calendário
-  que abre `showDatePicker`. Digitar é sempre possível. Intervalo usa dois
-  campos ("De", "Até"), não um seletor único.
+- **DatePicker:** ver 5.4.1.
 - 2 a 4 opções visíveis de uma vez: use `SegmentedButton` ou rádio, não select.
+
+### 5.4.1 Campo de data — `DsDateField`
+
+Campo com máscara `dd/mm/aaaa` e calendário em popover preso ao campo.
+
+```dart
+DsDateField(
+  label: 'Vencimento',
+  value: dueDate,
+  required: true,
+  firstDate: DateTime.now(),
+  onChanged: (date) => setState(() => dueDate = date),
+)
+```
+
+**Por que popover e não o diálogo do Material.** `showDatePicker` abre um
+diálogo de cerca de 570 px de altura, que mal cabe num notebook e não cabe no
+iframe do hub. O popover tem 276 x 312 px, não cobre a tela e abre para cima
+quando falta espaço abaixo.
+
+**Comportamento**
+- Digitar é sempre possível e é o caminho mais rápido; a máscara insere as
+  barras.
+- O calendário abre pelo ícone ou com Alt+Seta para baixo; fecha com Esc, ao
+  escolher um dia ou ao clicar fora.
+- O título do mês abre a grade de anos, para datas distantes (nascimento).
+- "Hoje" seleciona a data atual; "Limpar" aparece em campo opcional preenchido.
+- Dias fora de `firstDate` e `lastDate` ficam desabilitados.
+- `onChanged` entrega a data quando o texto é uma data válida dentro do
+  intervalo, e `null` quando deixa de ser.
+
+**Estados:** padrão, foco, preenchido, erro, desabilitado; calendário aberto
+para baixo ou para cima; dia de hoje (contorno), selecionado (preenchido), no
+período (fundo suave), desabilitado.
+
+**Validação** (dentro de `Form`): obrigatório, "Informe uma data válida
+(dd/mm/aaaa).", "Informe uma data até 31/12/2020." e depois o `validator`
+próprio.
+
+**Período — `DsDateRangeField`.** Dois campos ligados, "De" e "Até". Os dois
+calendários destacam o período; fim anterior ao início aparece como erro no
+campo final.
+
+```dart
+DsDateRangeField(
+  start: from,
+  end: to,
+  onChanged: (start, end) => setState(() { from = start; to = end; }),
+)
+```
+
+**Correto**
+- Largura mínima de 168 px (`DsDateField.minWidth`).
+- `lastDate: DateTime.now()` para nascimento; `firstDate` para vencimento.
+
+**Incorreto**
+- `showDatePicker` ou `showDateRangePicker` direto na tela.
+- Campo somente leitura que obriga a usar o calendário.
+- Um único campo para o período.
+
+**Acessibilidade:** o campo tem rótulo e anuncia obrigatório; cada dia é um
+botão com a data por extenso; o popover é anunciado como "Calendário" com o
+rótulo do campo. A grade não tem navegação por setas: o teclado percorre os
+dias com Tab, e o caminho previsto para teclado é digitar a data.
+
+**Idioma:** meses e dias da semana estão em português do Brasil dentro do
+próprio componente, com a semana começando no domingo. Não depende de
+`flutter_localizations` nem do idioma do navegador.
+
+**Fora do escopo:** hora (o forms-portal tem um campo de data e hora) e
+atalhos de período ("Últimos 7 dias", "Este mês"). Entram quando houver o
+segundo uso.
 
 ## 5.5 Modal e Drawer
 
