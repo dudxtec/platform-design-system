@@ -1,3 +1,25 @@
+## 0.3.1
+
+Correções do `DsDateField` encontradas ao aplicar a 0.3.0 nos portais, todas
+ligadas ao uso com mouse.
+
+### Corrigido
+
+* Clicar dentro do calendário tirava o foco do campo. Quem salvava ao perder o foco gravava a data antiga antes da escolhida.
+* Depois de um clique no calendário, Esc deixava de fechá-lo; dentro de um diálogo, fechava o diálogo.
+* `DsPagination` estourava em telas de 320 px com muitas páginas: abaixo de 400 px saem os botões de primeira e última página e o rótulo vira "100 / 1000".
+
+### Muda o comportamento
+
+* Esc no calendário desfaz o que foi alterado desde a abertura (relevante no modo com hora, em que escolher o dia não fecha). Clicar fora mantém a alteração.
+
+### Adicionado
+
+* `DsDateField.onCommitted`: avisa quando a edição terminou e o valor mudou (escolha no calendário, Enter, ou foco saindo do campo e do calendário). É o gancho para salvar ao alterar; substitui ouvir o `focusNode`.
+* `DsDateField.compact`: sem rótulo flutuante e com 32 px, para célula de tabela (`DsDateField.compactMinWidth`).
+* `DsDateField.calendarInitialDate` e `prefixIcon`; `DsCalendar.initialMonth`.
+* `DsButtonSize.lg` (sempre 44 px) e `DsPagination.touch`, para layouts de toque acima de 900 px.
+
 ## 0.3.0
 
 Ajustes encontrados ao aplicar a 0.2.0 nos portais.

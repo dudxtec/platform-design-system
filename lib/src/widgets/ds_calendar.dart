@@ -148,6 +148,7 @@ class DsCalendar extends StatefulWidget {
     super.key,
     required this.onSelected,
     this.selected,
+    this.initialMonth,
     this.rangeStart,
     this.rangeEnd,
     this.firstDate,
@@ -157,6 +158,9 @@ class DsCalendar extends StatefulWidget {
 
   final ValueChanged<DateTime> onSelected;
   final DateTime? selected;
+
+  /// Month to show first when there is no [selected] date. Defaults to today.
+  final DateTime? initialMonth;
 
   /// Highlights the days between the two ends of a period. Either may be
   /// null while the period is incomplete.
@@ -203,7 +207,11 @@ class _DsCalendarState extends State<DsCalendar> {
   void initState() {
     super.initState();
     final DateTime anchor = _clamp(
-      widget.selected ?? widget.rangeStart ?? widget.rangeEnd ?? DateTime.now(),
+      widget.selected ??
+          widget.rangeStart ??
+          widget.rangeEnd ??
+          widget.initialMonth ??
+          DateTime.now(),
     );
     _month = DateTime(anchor.year, anchor.month);
   }

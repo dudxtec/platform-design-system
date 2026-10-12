@@ -5,6 +5,7 @@ import '../tokens/ds_color_tokens.dart';
 import '../tokens/ds_foundations.dart';
 import '../tokens/ds_radius.dart';
 import '../tokens/ds_spacing.dart';
+import '../tokens/ds_typography.dart';
 import 'ds_button.dart';
 import 'ds_calendar.dart';
 import 'ds_form.dart';
@@ -98,6 +99,10 @@ class DsDateField extends StatefulWidget {
     this.validator,
     this.onSubmitted,
     this.onPicked,
+    this.onCommitted,
+    this.calendarInitialDate,
+    this.prefixIcon,
+    this.compact = false,
     this.textInputAction,
   });
 
@@ -141,10 +146,30 @@ class DsDateField extends StatefulWidget {
 
   /// A date chosen in the calendar (not typed). Use it to save right away.
   final ValueChanged<DateTime?>? onPicked;
+
+  /// The user finished editing and the value changed: a date was chosen in
+  /// the calendar, Enter was pressed, or focus left the field and its
+  /// calendar. Called with null when the field was emptied; not called while
+  /// the text is not a valid date. This is the hook for saving on change —
+  /// prefer it to listening to [focusNode], which also loses focus to the
+  /// calendar's own time input.
+  final ValueChanged<DateTime?>? onCommitted;
+
+  /// Month shown when the calendar opens and the field has no valid date.
+  /// Defaults to today.
+  final DateTime? calendarInitialDate;
+  final Widget? prefixIcon;
+
+  /// For table cells: no floating label (the column header names the field;
+  /// [label] is still announced) and a 32 px control.
+  final bool compact;
   final TextInputAction? textInputAction;
 
   /// Narrowest width that shows the whole date and the calendar button.
   static const double minWidth = 168;
+
+  /// Narrowest width of a [compact] date-only field.
+  static const double compactMinWidth = 132;
 
   @override
   State<DsDateField> createState() => _DsDateFieldState();
@@ -159,6 +184,12 @@ class _DsDateFieldState extends State<DsDateField> {
 
   /// Where the popover goes, relative to the top-left corner of the field.
   Offset _popoverOffset = Offset.zero;
+
+  /// Text when the calendar was opened; Esc goes back to it.
+  String _textAtOpen = '';
+
+  /// Text of the last value reported through `onCommitted`.
+  String _committedText = '';
 
   static const double _timeRowHeight = 56;
   static final RegExp _eightDigits = RegExp(r'^\d{8}$');
@@ -184,6 +215,7 @@ class _DsDateFieldState extends State<DsDateField> {
     } else {
       _normalize();
     }
+    _committedText = _text.text;
     _focus.addListener(_onFocusChanged);
   }
 
@@ -203,6 +235,8 @@ class _DsDateFieldState extends State<DsDateField> {
     final DateTime? typed = _parse(_text.text);
     if (!_same(widget.value, typed) && !_same(widget.value, oldWidget.value)) {
       _text.text = widget.value == null ? '' : _format(widget.value!);
+      // A value pushed by the parent is not an edit to report back.
+      _committedText = _text.text;
     }
   }
 
@@ -250,7 +284,20 @@ class _DsDateFieldState extends State<DsDateField> {
   }
 
   void _onFocusChanged() {
-    if (!_focus.hasFocus && !_popover.isShowing) _normalize();
+    // While the calendar is open, focus may be in its time input: the edit is
+    // not over yet.
+    if (!_focus.hasFocus && !_popover.isShowing) _commit();
+  }
+
+  /// Reports a finished edit, once per distinct value.
+  void _commit() {
+    _normalize();
+    final String text = _text.text.trim();
+    if (text == _committedText.trim()) return;
+    final DateTime? date = _parse(text);
+    if (text.isNotEmpty && date == null) return;
+    _committedText = _text.text;
+    widget.onCommitted?.call(date);
   }
 
   String? _validate(String? raw) {
@@ -310,6 +357,7 @@ class _DsDateFieldState extends State<DsDateField> {
       );
       _popoverOffset = Offset(left - origin.dx, top - origin.dy);
     }
+    _textAtOpen = _text.text;
     setState(_popover.show);
     // Shortcuts (Esc) are handled around the field, so focus has to be inside
     // it even when the calendar was opened with the mouse.
@@ -318,6 +366,27 @@ class _DsDateFieldState extends State<DsDateField> {
 
   void _close() {
     if (_popover.isShowing) setState(_popover.hide);
+  }
+
+  /// Esc: closes and undoes whatever was changed since the calendar opened.
+  void _cancel() {
+    if (!_popover.isShowing) return;
+    if (_text.text != _textAtOpen) {
+      _text.value = TextEditingValue(
+        text: _textAtOpen,
+        selection: TextSelection.collapsed(offset: _textAtOpen.length),
+      );
+      widget.onChanged(_parse(_textAtOpen));
+    }
+    _close();
+    _focus.requestFocus();
+  }
+
+  /// A click outside: closes and keeps what is in the field.
+  void _dismiss() {
+    if (!_popover.isShowing) return;
+    _close();
+    if (!_focus.hasFocus) _commit();
   }
 
   void _setText(DateTime? date) {
@@ -332,6 +401,7 @@ class _DsDateFieldState extends State<DsDateField> {
     widget.onPicked?.call(_parse(_text.text));
     _close();
     _focus.requestFocus();
+    _commit();
   }
 
   void _pick(DateTime? date) {
@@ -379,11 +449,11 @@ class _DsDateFieldState extends State<DsDateField> {
     final DsColorTokens c = context.dsColors;
     final DateTime? current = _parse(_text.text);
 
-    return CallbackShortcuts(
+    final Widget field = CallbackShortcuts(
       bindings: <ShortcutActivator, VoidCallback>{
         // Bound only while open, so Esc still closes an enclosing dialog.
         if (_popover.isShowing)
-          const SingleActivator(LogicalKeyboardKey.escape): _close,
+          const SingleActivator(LogicalKeyboardKey.escape): _cancel,
         const SingleActivator(LogicalKeyboardKey.arrowDown, alt: true): _open,
       },
       child: TapRegion(
@@ -400,50 +470,64 @@ class _DsDateFieldState extends State<DsDateField> {
                   offset: _popoverOffset,
                   child: TapRegion(
                     groupId: this,
-                    onTapOutside: (_) => _close(),
-                    child: Material(
-                      color: c.surface,
-                      elevation: DsElevation.level2,
-                      shadowColor: c.shadow,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(DsRadius.sm),
-                        side: BorderSide(color: c.border),
-                      ),
-                      child: Semantics(
-                        container: true,
-                        label: 'Calendário, ${widget.label}',
-                        explicitChildNodes: true,
-                        // Scrolls only on viewports shorter than the calendar.
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxHeight:
-                                MediaQuery.sizeOf(context).height -
-                                DsSpacing.s8 * 2,
+                    onTapOutside: (_) => _dismiss(),
+                    // Clicks in the calendar must not count as clicks outside
+                    // the text field, or the field would lose focus (and with
+                    // it the Esc shortcut) on every mouse click.
+                    child: TextFieldTapRegion(
+                      child: CallbackShortcuts(
+                        // Reached when focus is in the time input.
+                        bindings: <ShortcutActivator, VoidCallback>{
+                          const SingleActivator(LogicalKeyboardKey.escape):
+                              _cancel,
+                        },
+                        child: Material(
+                          color: c.surface,
+                          elevation: DsElevation.level2,
+                          shadowColor: c.shadow,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(DsRadius.sm),
+                            side: BorderSide(color: c.border),
                           ),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                DsCalendar(
-                                  selected: current,
-                                  rangeStart: widget.rangeStart,
-                                  rangeEnd: widget.rangeEnd,
-                                  firstDate: _first,
-                                  lastDate: _last,
-                                  onSelected: _pick,
-                                  onClear: widget.required || _text.text.isEmpty
-                                      ? null
-                                      : () => _pick(null),
+                          child: Semantics(
+                            container: true,
+                            label: 'Calendário, ${widget.label}',
+                            explicitChildNodes: true,
+                            // Scrolls only on viewports shorter than the calendar.
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxHeight:
+                                    MediaQuery.sizeOf(context).height -
+                                    DsSpacing.s8 * 2,
+                              ),
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    DsCalendar(
+                                      selected: current,
+                                      initialMonth: widget.calendarInitialDate,
+                                      rangeStart: widget.rangeStart,
+                                      rangeEnd: widget.rangeEnd,
+                                      firstDate: _first,
+                                      lastDate: _last,
+                                      onSelected: _pick,
+                                      onClear:
+                                          widget.required || _text.text.isEmpty
+                                          ? null
+                                          : () => _pick(null),
+                                    ),
+                                    if (widget.withTime)
+                                      _TimeRow(
+                                        value: current == null
+                                            ? null
+                                            : TimeOfDay.fromDateTime(current),
+                                        onChanged: _setTime,
+                                        onDone: _finish,
+                                      ),
+                                  ],
                                 ),
-                                if (widget.withTime)
-                                  _TimeRow(
-                                    value: current == null
-                                        ? null
-                                        : TimeOfDay.fromDateTime(current),
-                                    onChanged: _setTime,
-                                    onDone: _finish,
-                                  ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
@@ -474,17 +558,38 @@ class _DsDateFieldState extends State<DsDateField> {
                 widget.onChanged(_parse(_text.text));
               },
               onFieldSubmitted: (_) {
-                _normalize();
+                _commit();
                 widget.onSubmitted?.call();
               },
+              style: widget.compact
+                  ? DsTypography.table.copyWith(color: c.textPrimary)
+                  : null,
               decoration: InputDecoration(
-                label: DsFieldLabel(widget.label, required: widget.required),
+                label: widget.compact
+                    ? null
+                    : DsFieldLabel(widget.label, required: widget.required),
                 hintText: widget.withTime ? 'dd/mm/aaaa hh:mm' : 'dd/mm/aaaa',
                 helperText: widget.helperText,
+                prefixIcon: widget.prefixIcon,
+                contentPadding: widget.compact
+                    ? const EdgeInsets.fromLTRB(
+                        DsSpacing.s8,
+                        DsSpacing.s8,
+                        0,
+                        DsSpacing.s8,
+                      )
+                    : null,
+                suffixIconConstraints: widget.compact
+                    ? const BoxConstraints.tightFor(
+                        width: DsSizes.controlSm,
+                        height: DsSizes.controlSm,
+                      )
+                    : null,
                 suffixIcon: IconButton(
                   tooltip: 'Abrir calendário',
                   icon: const Icon(Icons.calendar_today_outlined),
-                  iconSize: DsSizes.iconMd,
+                  iconSize: widget.compact ? DsSizes.iconSm : DsSizes.iconMd,
+                  padding: widget.compact ? EdgeInsets.zero : null,
                   onPressed: widget.enabled
                       ? (_popover.isShowing ? _close : _open)
                       : null,
@@ -495,6 +600,10 @@ class _DsDateFieldState extends State<DsDateField> {
         ),
       ),
     );
+    // Without a visible label the name still has to be announced.
+    return widget.compact
+        ? Semantics(label: widget.label, child: field)
+        : field;
   }
 }
 

@@ -163,6 +163,9 @@ junto com as linhas.
 - Formato único: "1–20 de 249" à esquerda; à direita, tamanho da página e
   primeira, anterior, "Página 1 de 13", próxima, última.
 - O total é obrigatório. Sem total não há como saber onde a lista termina.
+- Abaixo de 900 px os botões têm 44 px (`touch: true` força isso em larguras
+  maiores). Abaixo de 400 px saem os botões de primeira e última página e o
+  rótulo vira "1 / 13".
 
 ### Seleção múltipla
 

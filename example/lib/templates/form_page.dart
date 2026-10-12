@@ -83,6 +83,10 @@ class _FormPageState extends State<FormPage> {
                     label: 'Data de nascimento',
                     value: _birthDate,
                     lastDate: DateTime.now(),
+                    calendarInitialDate: DateTime(
+                      DateTime.now().year - 18,
+                      DateTime.now().month,
+                    ),
                     onChanged: (DateTime? value) =>
                         setState(() => _birthDate = value),
                   ),

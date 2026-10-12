@@ -19,6 +19,7 @@ class DsPagination extends StatelessWidget {
     required this.onPageChanged,
     this.pageSizeOptions = const <int>[20, 50, 100],
     this.onPageSizeChanged,
+    this.touch,
   });
 
   final int page;
@@ -29,6 +30,9 @@ class DsPagination extends StatelessWidget {
 
   /// When null the page-size selector is hidden.
   final ValueChanged<int>? onPageSizeChanged;
+
+  /// Forces 44 px targets. Defaults to true below 900 px of width.
+  final bool? touch;
 
   int get pageCount => totalItems == 0 ? 1 : (totalItems / pageSize).ceil();
 
@@ -45,7 +49,11 @@ class DsPagination extends StatelessWidget {
     final bool hasNext = page < pageCount;
     final bool compact = DsDensity.of(context).isCompact;
     // Touch layouts keep the 44 px target even on short viewports.
-    final bool touch = MediaQuery.sizeOf(context).width < DsBreakpoints.tablet;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+    final bool touch = this.touch ?? screenWidth < DsBreakpoints.tablet;
+    // On phones four 44 px buttons and the full label do not fit: drop the
+    // first/last buttons and shorten the label.
+    final bool narrow = screenWidth < 400;
 
     Widget nav(String tooltip, IconData icon, int target, bool enabled) {
       return IconButton(
@@ -105,14 +113,20 @@ class DsPagination extends StatelessWidget {
                 ),
                 const SizedBox(width: DsSpacing.s16),
               ],
-              nav('Primeira página', Icons.first_page, 1, hasPrevious),
+              if (!narrow)
+                nav('Primeira página', Icons.first_page, 1, hasPrevious),
               nav('Página anterior', Icons.chevron_left, page - 1, hasPrevious),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: DsSpacing.s8),
-                child: Text('Página $page de $pageCount', style: style),
+                child: Text(
+                  narrow ? '$page / $pageCount' : 'Página $page de $pageCount',
+                  style: style,
+                  semanticsLabel: 'Página $page de $pageCount',
+                ),
               ),
               nav('Próxima página', Icons.chevron_right, page + 1, hasNext),
-              nav('Última página', Icons.last_page, pageCount, hasNext),
+              if (!narrow)
+                nav('Última página', Icons.last_page, pageCount, hasNext),
             ],
           ),
         ],
