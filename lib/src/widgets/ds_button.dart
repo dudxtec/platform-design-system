@@ -19,7 +19,16 @@ enum DsButtonVariant {
   danger,
 }
 
-enum DsButtonSize { sm, md }
+enum DsButtonSize {
+  /// 32 px, for tables and toolbars.
+  sm,
+
+  /// 40 px; grows to 44 px on touch widths.
+  md,
+
+  /// Always 44 px. For layouts that are touch-first above 900 px too.
+  lg,
+}
 
 /// The only button of the design system.
 ///
@@ -57,7 +66,7 @@ class DsButton extends StatelessWidget {
     final bool touch = MediaQuery.sizeOf(context).width < DsBreakpoints.tablet;
     final double height = small
         ? DsSizes.controlSm
-        : touch
+        : touch || size == DsButtonSize.lg
         ? DsSizes.touchTarget
         : DsSizes.controlMd;
 

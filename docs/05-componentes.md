@@ -48,7 +48,8 @@ Duas origens:
 | `danger` | Confirmação destrutiva, dentro do diálogo de confirmação |
 
 Tamanhos: `md` (40 px, padrão) e `sm` (32 px, dentro de tabela e barras).
-Abaixo de 900 px de largura o `md` passa a 44 px, o alvo mínimo de toque.
+Abaixo de 900 px de largura o `md` passa a 44 px, o alvo mínimo de toque. `lg`
+tem sempre 44 px, para layouts de toque em larguras maiores.
 
 **Estados:** padrão, hover, pressionado, foco, desabilitado, carregando.
 Em `loading: true` o botão fica desabilitado, troca o ícone por um indicador e
@@ -132,18 +133,30 @@ quando falta espaço abaixo.
 **Calendário**
 - Abre pelo ícone ou com Alt+Seta para baixo; fecha com Esc, ao escolher um dia
   ou ao clicar fora. Fechar sem escolher conserva o texto.
+- Esc desfaz o que foi alterado desde que o calendário abriu; clicar fora
+  mantém.
+- Clicar no calendário não tira o foco do campo.
+- `calendarInitialDate` define o mês de abertura quando o campo está vazio
+  (para nascimento, por exemplo, hoje menos 18 anos).
 - O título do mês abre a grade de anos, para datas distantes (nascimento).
 - "Hoje" seleciona a data atual; "Limpar" aparece em campo opcional preenchido.
 - Dias fora de `firstDate` e `lastDate` ficam desabilitados.
 
 **Callbacks**
 - `onChanged` entrega a data quando o texto é uma data válida dentro do
-  intervalo, e `null` quando deixa de ser.
-- `onPicked` avisa quando a data foi escolhida no calendário. Use para salvar na
-  hora, em campos de salvamento automático.
-- `onSubmitted` é o Enter no campo.
-- `controller` e `focusNode` externos, para quem precisa do texto bruto ou de
-  salvar ao perder o foco.
+  intervalo, e `null` quando deixa de ser. Dispara a cada tecla.
+- `onCommitted` avisa que a edição terminou e o valor mudou: data escolhida no
+  calendário, Enter, ou foco saindo do campo e do calendário. Não dispara com
+  texto inválido; campo esvaziado entrega `null`. **É o gancho para salvamento
+  automático.**
+- `onPicked` avisa só da escolha no calendário; `onSubmitted` só do Enter.
+- `controller` e `focusNode` externos, para quem precisa do texto bruto. Não
+  salve ouvindo o `focusNode`: o campo também perde o foco para o campo "Hora"
+  do próprio calendário.
+
+**Em tabela.** `compact: true` tira o rótulo flutuante (o cabeçalho da coluna
+já nomeia o campo; o rótulo continua sendo anunciado) e reduz o controle a
+32 px. Largura mínima de 132 px (`DsDateField.compactMinWidth`).
 
 **Data e hora.** `withTime: true` aceita `dd/mm/aaaa hh:mm` (segundos são
 aceitos e preservados; `showSeconds` os exibe sempre). Só a data significa
