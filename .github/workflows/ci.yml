@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    uses: dudxtec/workflow-manager/.github/workflows/frontend-portal-ci.yml@main
+    with:
+      flutter-version: "3.41.6"
+      working-directory: "."
+      # O pacote não tem alvo web; o build valida a galeria em example/.
+      build-command: "cd example && flutter pub get && flutter build web --release"

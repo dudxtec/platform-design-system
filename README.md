@@ -10,7 +10,7 @@ dependencies:
   platform_design_system:
     git:
       url: https://github.com/dudxtec/platform-design-system.git
-      ref: v0.2.0 # sempre uma tag, nunca main
+      ref: main # o pubspec.lock fixa o commit; atualize com `flutter pub upgrade platform_design_system`
 ```
 
 ```dart
