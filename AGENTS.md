@@ -27,10 +27,10 @@ quando cada um atualiza sua dependência.
 
 ## Versionamento e adoção nos portais
 
-- Os portais declaram \`ref: main\` e o \`pubspec.lock\` de cada um fixa o commit exato. Um portal só muda de versão quando alguém
-  roda \`flutter pub upgrade platform_design_system\` nele e commita o novo lock (\`docs/10-adocao.md\`). Não há tags por decisão atual.
-- Todo merge em \`main\` é, na prática, um release: mantenha a \`version\` do \`pubspec.yaml\` e o \`CHANGELOG.md\` atualizados
-  (em \`0.x\`, o número do meio indica mudança visual ou de API).
+- Os portais declaram `ref: main` e o `pubspec.lock` de cada um fixa o commit exato. Um portal só muda de versão quando alguém
+  roda `flutter pub upgrade platform_design_system` nele e commita o novo lock (`docs/10-adocao.md`). Não há tags por decisão atual.
+- Todo merge em `main` é, na prática, um release: mantenha a `version` do `pubspec.yaml` e o `CHANGELOG.md` atualizados
+  (em `0.x`, o número do meio indica mudança visual ou de API).
 - Não crie tags nem mude os portais para apontar para tag sem pedido explícito da pessoa responsável.
 - Ao adotar uma versão nova, atualize um portal por vez, em branch própria, e confira o resultado visual antes de seguir.
 
