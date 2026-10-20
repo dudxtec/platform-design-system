@@ -25,12 +25,14 @@ quando cada um atualiza sua dependência.
 - Não remova nem desabilite testes existentes.
 - Sem dependência nova sem justificativa técnica; o pacote só depende do SDK do Flutter.
 
-## Versionamento e publicação
+## Versionamento e adoção nos portais
 
-- Semver com tags `vX.Y.Z` (em `0.x`, o número do meio indica mudança visual ou de API). Cada release tem entrada no
-  `CHANGELOG.md` e a `version` do `pubspec.yaml` atualizada.
-- Os portais apontam para uma **tag**, nunca para `main`. A tag é criada no commit do merge, depois de mergear (passos em `docs/10-adocao.md`).
-- Não crie nem mova tags sem pedido explícito da pessoa responsável.
+- Os portais declaram \`ref: main\` e o \`pubspec.lock\` de cada um fixa o commit exato. Um portal só muda de versão quando alguém
+  roda \`flutter pub upgrade platform_design_system\` nele e commita o novo lock (\`docs/10-adocao.md\`). Não há tags por decisão atual.
+- Todo merge em \`main\` é, na prática, um release: mantenha a \`version\` do \`pubspec.yaml\` e o \`CHANGELOG.md\` atualizados
+  (em \`0.x\`, o número do meio indica mudança visual ou de API).
+- Não crie tags nem mude os portais para apontar para tag sem pedido explícito da pessoa responsável.
+- Ao adotar uma versão nova, atualize um portal por vez, em branch própria, e confira o resultado visual antes de seguir.
 
 ## Como validar antes do PR
 
