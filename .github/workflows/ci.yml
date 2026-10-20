@@ -1,5 +1,7 @@
 name: CI
 
+# Este repositório é público e o workflow-manager é privado, então não dá para usar o
+# workflow reutilizável. Os passos abaixo espelham o frontend-portal-ci.yml.
 on:
   pull_request:
     branches:
@@ -12,11 +14,38 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   ci:
-    uses: dudxtec/workflow-manager/.github/workflows/frontend-portal-ci.yml@main
-    with:
-      flutter-version: "3.41.6"
-      working-directory: "."
-      # O pacote não tem alvo web; o build valida a galeria em example/.
-      build-command: "cd example && flutter pub get && flutter build web --release"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.41.6"
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Format check
+        run: dart format --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Unit tests
+        run: flutter test
+
+      - name: Build example (gallery)
+        working-directory: example
+        run: |
+          flutter pub get
+          flutter build web --release
