@@ -127,15 +127,16 @@ teste de widget, página na galeria e seção em `docs/05-componentes.md`.
 
 ## 8.8 Versionamento
 
-- Semver com tags `vX.Y.Z`. Enquanto estiver em `0.x`, o número do meio indica
-  mudança visual ou de API.
-- Portais apontam para tag, nunca para `main`:
+- Semver no `pubspec.yaml`. Enquanto estiver em `0.x`, o número do meio indica
+  mudança visual ou de API. Não há tags por decisão atual.
+- Portais apontam para `main` e o `pubspec.lock` de cada um fixa o commit exato;
+  o portal só muda quando alguém roda `flutter pub upgrade platform_design_system`:
 
 ```yaml
 platform_design_system:
   git:
     url: https://github.com/dudxtec/platform-design-system.git
-    ref: v0.2.0
+    ref: main
 ```
 
 - Todo release tem entrada no `CHANGELOG.md` com o que muda visualmente.

@@ -22,37 +22,29 @@ estão num commit e forms, main e reports em outro.
 Os Dockerfiles dos portais rodam `flutter pub get`, que respeita o lock. O
 deploy usa o que estiver commitado no `pubspec.lock`.
 
-## 10.2 Publicar a versão (uma vez)
+## 10.2 Publicar uma versão
 
 No `platform-design-system`:
 
 1. Enviar a branch e abrir o pull request.
-2. Revisar olhando a galeria (`cd example && flutter run -d chrome`).
-3. Mergear em `main`.
-4. Criar a tag no commit do merge:
+2. Atualizar a `version` do `pubspec.yaml` e o `CHANGELOG.md`.
+3. Revisar olhando a galeria (`cd example && flutter run -d chrome`).
+4. Mergear em `main`.
 
-```bash
-git tag v0.2.0
-```
-
-```bash
-git push origin v0.2.0
-```
-
-A tag é o que torna a versão estável: `main` pode continuar andando sem afetar
-quem aponta para `v0.2.0`.
+Não há tags por decisão atual. O que mantém cada portal estável é o
+`pubspec.lock`: `main` pode andar sem afetar quem não rodou o `pub upgrade`.
 
 ## 10.3 Adotar num portal
 
 Um portal por vez, em branch própria.
 
-**1. Apontar para a tag** no `pubspec.yaml` do portal:
+**1. Confirmar a dependência** no `pubspec.yaml` do portal (`ref: main`):
 
 ```yaml
 platform_design_system:
   git:
     url: https://github.com/dudxtec/platform-design-system.git
-    ref: v0.2.0
+    ref: main
 ```
 
 **2. Atualizar só este pacote:**
@@ -101,7 +93,7 @@ de pull request e deploy do portal.
 `DsDataTable`...) é trabalho separado, tela a tela, na ordem do plano de
 migração interno.
 
-## 10.4 Testar antes da tag
+## 10.4 Testar antes do merge
 
 Para ver um portal com a branch do design system sem publicar nada, crie um
 `pubspec_overrides.yaml` na raiz do portal:
@@ -132,8 +124,9 @@ branch (`feat/design-system-foundation`) numa branch do portal.
 
 ## 10.6 Versões seguintes
 
-- Correção sem mudança visual: `v0.2.1`. Mudança visual ou de API: `v0.3.0`.
-- Cada portal sobe quando quiser, repetindo 10.3 com a nova tag.
-- Para voltar atrás, basta restaurar a tag anterior no `pubspec.yaml` e rodar o
-  `pub upgrade` do pacote.
+- Correção sem mudança visual: aumenta o último número da `version`. Mudança
+  visual ou de API: aumenta o do meio.
+- Cada portal sobe quando quiser, repetindo 10.3 (`flutter pub upgrade platform_design_system`).
+- Para voltar atrás, restaure o `pubspec.lock` anterior do portal (ou fixe o
+  `ref:` no hash do commit anterior) e rode `flutter pub get`.
 - O `CHANGELOG.md` diz o que muda visualmente em cada versão.
