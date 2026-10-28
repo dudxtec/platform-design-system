@@ -105,7 +105,11 @@ class _DsAppShellState extends State<DsAppShell> {
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: DsDensity.of(context).topBarHeight,
+        // 48 px on phones whatever the density: a short screen is the scarce
+        // resource there, and the touch targets inside the bar stay 44 px.
+        toolbarHeight: context.isMobile
+            ? DsDensity.compact.topBarHeight
+            : DsDensity.of(context).topBarHeight,
         automaticallyImplyLeading: false,
         titleSpacing: 0,
         leading: Builder(

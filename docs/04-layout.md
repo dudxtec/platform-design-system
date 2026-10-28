@@ -162,7 +162,7 @@ sozinhos; nenhuma tela precisa tratar isso.
 
 | Item | Confortável | Compacto |
 |---|---|---|
-| Top bar | 56 | 48 |
+| Top bar | 56 (48 no celular) | 48 |
 | Margem da página | 24 | 16 |
 | Cabeçalho até filtros | 24 | 12 |
 | Filtros até conteúdo | 16 | 12 |

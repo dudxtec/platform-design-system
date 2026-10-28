@@ -561,6 +561,41 @@ void main() {
     });
   });
 
+  group('DsAppShell top bar height', () {
+    Widget shell() {
+      return MaterialApp(
+        theme: DsTheme.light(),
+        home: DsAppShell(
+          sections: const <DsNavSection>[
+            DsNavSection(
+              items: <DsNavItem>[
+                DsNavItem(
+                  id: 'person',
+                  label: 'Pessoas',
+                  icon: Icons.people_outline,
+                ),
+              ],
+            ),
+          ],
+          onNavigate: (_) {},
+          body: const SizedBox.expand(),
+        ),
+      );
+    }
+
+    testWidgets('is 48 on phones and 56 on wide screens', (
+      WidgetTester tester,
+    ) async {
+      _setSurface(tester, const Size(390, 800));
+      await tester.pumpWidget(shell());
+      expect(tester.getSize(find.byType(AppBar)).height, 48);
+
+      tester.view.physicalSize = const Size(1440, 900);
+      await tester.pumpAndSettle();
+      expect(tester.getSize(find.byType(AppBar)).height, 56);
+    });
+  });
+
   group('DsAppShell sidebar on narrow desktops', () {
     Widget shell({bool? collapsed, ValueChanged<bool>? onChanged}) {
       return MaterialApp(
