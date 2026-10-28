@@ -1,3 +1,9 @@
+## 0.3.2
+
+### Muda o comportamento
+
+* `DsAppShell`: a barra superior tem 48 px no celular (abaixo de `DsBreakpoints.mobile`), qualquer que seja a densidade. Em telas maiores continua 56 px (confortável) ou 48 px (compacta).
+
 ## 0.3.1
 
 Correções do `DsDateField` encontradas ao aplicar a 0.3.0 nos portais, todas
