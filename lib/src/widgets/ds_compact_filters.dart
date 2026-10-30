@@ -188,9 +188,7 @@ class DsSortLink<T> extends StatelessWidget {
             value: option.value,
             checked: option.value == value,
             child: Text(
-              option.value == value
-                  ? '${option.label} ($arrow)'
-                  : option.label,
+              option.value == value ? '${option.label} ($arrow)' : option.label,
             ),
           ),
       ],
