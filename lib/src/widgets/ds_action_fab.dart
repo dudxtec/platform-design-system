@@ -119,7 +119,9 @@ class _DsActionFabState extends State<DsActionFab> {
       return;
     }
     if (action.children.isNotEmpty) {
-      setState(() => _expanded = _expanded == action.label ? null : action.label);
+      setState(
+        () => _expanded = _expanded == action.label ? null : action.label,
+      );
       return;
     }
     _runAndClose(action.onPressed);

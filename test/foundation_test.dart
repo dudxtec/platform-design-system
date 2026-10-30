@@ -84,7 +84,11 @@ void main() {
       });
 
       test('${entry.key}: filled buttons and the fab reach 4.5:1', () {
-        for (final Color fill in <Color>[c.dangerSolid, c.successSolid, c.fab]) {
+        for (final Color fill in <Color>[
+          c.dangerSolid,
+          c.successSolid,
+          c.fab,
+        ]) {
           expect(
             _contrast(c.onFill, fill),
             greaterThanOrEqualTo(4.5),

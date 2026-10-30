@@ -137,35 +137,34 @@ void main() {
       expect(find.byIcon(Icons.add), findsOneWidget);
     });
 
-    testWidgets('phone: scrim behind the menu, first action nearest the thumb', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(_host(actions: _two((String v) {})));
-      await _openMenu(tester);
+    testWidgets(
+      'phone: scrim behind the menu, first action nearest the thumb',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(_host(actions: _two((String v) {})));
+        await _openMenu(tester);
 
-      final ColoredBox scrim = tester.widget<ColoredBox>(
-        find.descendant(
-          of: find.byKey(_barrier),
-          matching: find.byType(ColoredBox),
-        ),
-      );
-      expect(scrim.color, DsColorTokens.light.scrim);
-      expect(
-        tester.getTopLeft(find.text('Novo carnê')).dy,
-        greaterThan(tester.getTopLeft(find.text('Exportar')).dy),
-      );
+        final ColoredBox scrim = tester.widget<ColoredBox>(
+          find.descendant(
+            of: find.byKey(_barrier),
+            matching: find.byType(ColoredBox),
+          ),
+        );
+        expect(scrim.color, DsColorTokens.light.scrim);
+        expect(
+          tester.getTopLeft(find.text('Novo carnê')).dy,
+          greaterThan(tester.getTopLeft(find.text('Exportar')).dy),
+        );
 
-      await tester.tapAt(const Offset(40, 40));
-      await tester.pumpAndSettle();
-      expect(find.text('Exportar'), findsNothing);
-    });
+        await tester.tapAt(const Offset(40, 40));
+        await tester.pumpAndSettle();
+        expect(find.text('Exportar'), findsNothing);
+      },
+    );
 
     testWidgets('web: menu without scrim, tap outside closes', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(
-        _host(actions: _two((String v) {}), width: 1280),
-      );
+      await tester.pumpWidget(_host(actions: _two((String v) {}), width: 1280));
       await _openMenu(tester);
 
       final ColoredBox barrier = tester.widget<ColoredBox>(
@@ -252,38 +251,43 @@ void main() {
       expect(find.byType(FloatingActionButton), findsNothing);
     });
 
-    testWidgets('is 56 px and sits 16 px (phone) or 24 px (web) from the edge', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(_host(actions: _two((String v) {})));
-      expect(
-        tester.getSize(find.byType(FloatingActionButton)),
-        const Size(DsActionFab.size, DsActionFab.size),
-      );
-      Rect area = tester.getRect(find.byType(DsActionFab));
-      Rect fab = tester.getRect(find.byType(FloatingActionButton));
-      expect(area.bottom - fab.bottom, 16);
-      expect(area.right - fab.right, 16);
+    testWidgets(
+      'is 56 px and sits 16 px (phone) or 24 px (web) from the edge',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(_host(actions: _two((String v) {})));
+        expect(
+          tester.getSize(find.byType(FloatingActionButton)),
+          const Size(DsActionFab.size, DsActionFab.size),
+        );
+        Rect area = tester.getRect(find.byType(DsActionFab));
+        Rect fab = tester.getRect(find.byType(FloatingActionButton));
+        expect(area.bottom - fab.bottom, 16);
+        expect(area.right - fab.right, 16);
 
-      await tester.pumpWidget(
-        _host(actions: _two((String v) {}), width: 1280),
-      );
-      area = tester.getRect(find.byType(DsActionFab));
-      fab = tester.getRect(find.byType(FloatingActionButton));
-      expect(area.bottom - fab.bottom, 24);
-      expect(area.right - fab.right, 24);
-    });
+        await tester.pumpWidget(
+          _host(actions: _two((String v) {}), width: 1280),
+        );
+        area = tester.getRect(find.byType(DsActionFab));
+        fab = tester.getRect(find.byType(FloatingActionButton));
+        expect(area.bottom - fab.bottom, 24);
+        expect(area.right - fab.right, 24);
+      },
+    );
 
     testWidgets('endOffset moves the button away from the end edge', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(_host(actions: _two((String v) {}), width: 1280));
-      final double before = tester.getRect(find.byType(FloatingActionButton)).right;
+      final double before = tester
+          .getRect(find.byType(FloatingActionButton))
+          .right;
 
       await tester.pumpWidget(
         _host(actions: _two((String v) {}), width: 1280, endOffset: 400),
       );
-      final double after = tester.getRect(find.byType(FloatingActionButton)).right;
+      final double after = tester
+          .getRect(find.byType(FloatingActionButton))
+          .right;
 
       expect(before - after, 400);
     });
