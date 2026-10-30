@@ -13,6 +13,7 @@ export 'src/widgets/ds_alert.dart';
 export 'src/widgets/ds_app_shell.dart';
 export 'src/widgets/ds_badge.dart';
 export 'src/widgets/ds_button.dart';
+export 'src/widgets/ds_compact_filters.dart';
 export 'src/widgets/ds_calendar.dart';
 export 'src/widgets/ds_data_table.dart';
 export 'src/widgets/ds_date_field.dart';

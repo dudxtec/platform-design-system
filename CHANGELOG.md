@@ -1,3 +1,14 @@
+## 0.4.0
+
+Segunda entrega do plano de listas mobile: filtros compactos, iguais na web e no app.
+
+### Adicionado
+
+* `DsCompactFilters`: linha com a busca rápida e o botão "Filtros (n)" de 44 px, chips removíveis dos filtros aplicados (com "Limpar" a partir de dois), contagem de resultados e o link de ordenação, tudo no mesmo componente. `DsAppliedFilter` descreve cada chip.
+* `DsSortLink` e `DsSortOption`: "Ordenar: Nome ↑", link que abre as opções de ordenação (a opção atual inverte o sentido).
+* `showDsFilterSheet`: folha inferior no celular e diálogo acima de 600 px, com "Limpar" e "Aplicar", para os filtros que não cabem na linha.
+* `DsFilterBar` continua para telas que precisam de campos soltos (por exemplo, Relatórios com Aplicar).
+
 ## 0.3.3
 
 Primeira entrega do plano de listas mobile (botão flutuante, filtros compactos e
