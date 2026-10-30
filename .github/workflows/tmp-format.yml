@@ -1,0 +1,54 @@
+name: tmp-format
+
+# TEMPORÁRIO: formata com dart format, commita o resultado e anota falhas de
+# analyze/test (os logs do Actions não são acessíveis ao agente). Remover antes de mesclar.
+on:
+  push:
+    branches:
+      - feat/tokens-solid-fab-action-fab
+
+permissions:
+  contents: write
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.41.6"
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Format e commit
+        run: |
+          dart format .
+          if ! git diff --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -am "style: dart format (temporário)"
+            git push origin HEAD:refs/heads/${{ github.ref_name }}
+          fi
+
+      - name: Analyze e test (anotações)
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          def esc(t):
+              return t.replace('%', '%25').replace('\r', '').replace('\n', '%0A')
+          def run(title, cmd, tail):
+              p = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+              out = p.stdout + p.stderr
+              print(out)
+              if p.returncode != 0:
+                  print('::error title=' + title + '::' + esc(out[-tail:]))
+              else:
+                  print('::notice title=' + title + '::ok')
+          run('flutter analyze', 'flutter analyze', 8000)
+          run('flutter test', 'flutter test --no-pub --reporter failures-only', 14000)
+          PY

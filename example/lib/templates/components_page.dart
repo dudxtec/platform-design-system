@@ -47,6 +47,11 @@ class ComponentsPage extends StatelessWidget {
                     variant: DsButtonVariant.danger,
                     onPressed: () {},
                   ),
+                  DsButton(
+                    label: 'Confirmar',
+                    variant: DsButtonVariant.success,
+                    onPressed: () {},
+                  ),
                   const DsButton(label: 'Salvando', loading: true),
                   const DsButton(label: 'Desabilitado'),
                   const DsButton(
@@ -68,6 +73,75 @@ class ComponentsPage extends StatelessWidget {
                     onPressed: () {},
                   ),
                 ]),
+              ],
+            ),
+          ),
+          const SizedBox(height: DsSpacing.s24),
+          DsSectionCard(
+            title: 'Chips e botão flutuante',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                row(<Widget>[
+                  FilterChip(
+                    label: const Text('Ativos'),
+                    selected: true,
+                    onSelected: (bool value) {},
+                  ),
+                  FilterChip(
+                    label: const Text('Vencidos'),
+                    selected: false,
+                    onSelected: (bool value) {},
+                  ),
+                ]),
+                const SizedBox(height: DsSpacing.s16),
+                SizedBox(
+                  height: 320,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: c.border),
+                      borderRadius: BorderRadius.circular(DsRadius.sm),
+                    ),
+                    child: DsActionFab(
+                      actions: <DsFabAction>[
+                        DsFabAction(
+                          label: 'Novo carnê',
+                          icon: Icons.receipt_long_outlined,
+                          onPressed: () {},
+                        ),
+                        DsFabAction(
+                          label: 'Exportar',
+                          icon: Icons.file_download_outlined,
+                          children: <DsFabAction>[
+                            DsFabAction(
+                              label: 'Excel',
+                              icon: Icons.table_chart_outlined,
+                              onPressed: () {},
+                            ),
+                            DsFabAction(
+                              label: 'CSV',
+                              icon: Icons.description_outlined,
+                              onPressed: () {},
+                            ),
+                            DsFabAction(
+                              label: 'PDF',
+                              icon: Icons.picture_as_pdf_outlined,
+                              onPressed: () {},
+                            ),
+                          ],
+                        ),
+                      ],
+                      child: Center(
+                        child: Text(
+                          'Área da lista',
+                          style: text.bodyMedium?.copyWith(
+                            color: c.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

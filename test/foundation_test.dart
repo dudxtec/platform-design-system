@@ -82,6 +82,38 @@ void main() {
           );
         }
       });
+
+      test('${entry.key}: filled buttons and the fab reach 4.5:1', () {
+        for (final Color fill in <Color>[c.dangerSolid, c.successSolid, c.fab]) {
+          expect(
+            _contrast(c.onFill, fill),
+            greaterThanOrEqualTo(4.5),
+            reason: 'onFill on $fill',
+          );
+        }
+      });
+
+      test('${entry.key}: the fab and the selected chip stand out (3:1)', () {
+        expect(_contrast(c.fab, c.surface), greaterThanOrEqualTo(3));
+        expect(_contrast(c.fab, c.canvas), greaterThanOrEqualTo(3));
+        expect(
+          _contrast(c.primary, c.surfaceSelected),
+          greaterThanOrEqualTo(3),
+        );
+        expect(_contrast(c.primary, c.surface), greaterThanOrEqualTo(3));
+      });
+
+      test('${entry.key}: danger and success keep a step for icons', () {
+        // Icons, bars and borders are drawn straight on the surface.
+        expect(
+          _contrast(c.dangerTone.solid, c.surface),
+          greaterThanOrEqualTo(3),
+        );
+        expect(
+          _contrast(c.successTone.solid, c.surface),
+          greaterThanOrEqualTo(3),
+        );
+      });
     }
   });
 
@@ -178,6 +210,53 @@ void main() {
       expect(find.byType(TextButton), findsOneWidget);
     });
 
+    testWidgets('danger and success are filled with their own token', (
+      WidgetTester tester,
+    ) async {
+      final Map<ThemeData, DsColorTokens> themes = <ThemeData, DsColorTokens>{
+        DsTheme.light(): DsColorTokens.light,
+        DsTheme.dark(): DsColorTokens.dark,
+      };
+      for (final MapEntry<ThemeData, DsColorTokens> entry in themes.entries) {
+        await tester.pumpWidget(
+          _app(
+            Column(
+              children: <Widget>[
+                DsButton(
+                  label: 'D',
+                  onPressed: () {},
+                  variant: DsButtonVariant.danger,
+                ),
+                DsButton(
+                  label: 'S',
+                  onPressed: () {},
+                  variant: DsButtonVariant.success,
+                ),
+              ],
+            ),
+            theme: entry.key,
+          ),
+        );
+        final DsColorTokens c = entry.value;
+        final List<FilledButton> buttons = tester
+            .widgetList<FilledButton>(find.byType(FilledButton))
+            .toList();
+        final Set<WidgetState> idle = <WidgetState>{};
+        final Set<WidgetState> hovered = <WidgetState>{WidgetState.hovered};
+
+        for (int i = 0; i < buttons.length; i++) {
+          final Color fill = i == 0 ? c.dangerSolid : c.successSolid;
+          final ButtonStyle style = buttons[i].style!;
+          expect(style.backgroundColor!.resolve(idle), fill);
+          expect(style.foregroundColor!.resolve(idle), c.onFill);
+
+          final Color active = style.backgroundColor!.resolve(hovered)!;
+          expect(active.computeLuminance(), lessThan(fill.computeLuminance()));
+          expect(_contrast(c.onFill, active), greaterThanOrEqualTo(4.5));
+        }
+      }
+    });
+
     testWidgets('loading disables the button and shows progress', (
       WidgetTester tester,
     ) async {
@@ -221,6 +300,58 @@ void main() {
 
       expect(materialHeight('md'), DsSizes.controlMd);
       expect(materialHeight('sm'), DsSizes.controlSm);
+    });
+  });
+
+  group('chips', () {
+    test('selected has a 2 px primary border and a check mark', () {
+      final Map<ThemeData, DsColorTokens> themes = <ThemeData, DsColorTokens>{
+        DsTheme.light(): DsColorTokens.light,
+        DsTheme.dark(): DsColorTokens.dark,
+      };
+      for (final MapEntry<ThemeData, DsColorTokens> entry in themes.entries) {
+        final ChipThemeData chip = entry.key.chipTheme;
+        final BorderSide? selected = WidgetStateProperty.resolveAs<BorderSide?>(
+          chip.side,
+          <WidgetState>{WidgetState.selected},
+        );
+        final BorderSide? idle = WidgetStateProperty.resolveAs<BorderSide?>(
+          chip.side,
+          <WidgetState>{},
+        );
+
+        expect(selected!.width, 2);
+        expect(selected.color, entry.value.primary);
+        expect(idle!.width, 1);
+        expect(idle.color, entry.value.borderStrong);
+        expect(chip.showCheckmark, isTrue);
+      }
+    });
+
+    testWidgets('a selected FilterChip draws the 2 px border', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          FilterChip(
+            label: const Text('Vencidos'),
+            selected: true,
+            onSelected: (bool value) {},
+          ),
+        ),
+      );
+
+      final Material material = tester.widget<Material>(
+        find
+            .descendant(
+              of: find.byType(FilterChip),
+              matching: find.byType(Material),
+            )
+            .first,
+      );
+      final OutlinedBorder shape = material.shape! as OutlinedBorder;
+      expect(shape.side.width, 2);
+      expect(shape.side.color, DsColorTokens.light.primary);
     });
   });
 

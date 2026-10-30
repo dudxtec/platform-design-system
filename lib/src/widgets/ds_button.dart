@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../tokens/ds_breakpoints.dart';
 import '../tokens/ds_color_tokens.dart';
 import '../tokens/ds_foundations.dart';
+import '../tokens/ds_palette.dart';
 import '../tokens/ds_spacing.dart';
 
 enum DsButtonVariant {
@@ -17,6 +18,9 @@ enum DsButtonVariant {
 
   /// Destructive confirmation.
   danger,
+
+  /// Filled confirmation of a positive outcome (confirm payment, approve).
+  success,
 }
 
 enum DsButtonSize {
@@ -88,8 +92,18 @@ class DsButton extends StatelessWidget {
           : null,
     );
 
-    if (variant == DsButtonVariant.danger) {
-      final DsToneColors danger = c.dangerTone;
+    if (variant == DsButtonVariant.danger ||
+        variant == DsButtonVariant.success) {
+      // Filled buttons use their own fill (white text, 4.5:1 in both themes).
+      // `dangerTone.solid` and `successTone.solid` stay for icons and bars.
+      final Color fill = variant == DsButtonVariant.danger
+          ? c.dangerSolid
+          : c.successSolid;
+      // Darker, never lighter: the contrast with the white text only grows.
+      final Color active = Color.alphaBlend(
+        DsPalette.black.withValues(alpha: 0.16),
+        fill,
+      );
       style = style.copyWith(
         backgroundColor: WidgetStateProperty.resolveWith((
           Set<WidgetState> states,
@@ -97,15 +111,15 @@ class DsButton extends StatelessWidget {
           if (states.contains(WidgetState.disabled)) return c.surfaceHover;
           if (states.contains(WidgetState.hovered) ||
               states.contains(WidgetState.pressed)) {
-            return danger.text;
+            return active;
           }
-          return danger.solid;
+          return fill;
         }),
         foregroundColor: WidgetStateProperty.resolveWith((
           Set<WidgetState> states,
         ) {
           if (states.contains(WidgetState.disabled)) return c.textDisabled;
-          return danger.onSolid;
+          return c.onFill;
         }),
       );
     }
@@ -135,7 +149,9 @@ class DsButton extends StatelessWidget {
           );
 
     final Widget button = switch (variant) {
-      DsButtonVariant.primary || DsButtonVariant.danger => FilledButton(
+      DsButtonVariant.primary ||
+      DsButtonVariant.danger ||
+      DsButtonVariant.success => FilledButton(
         onPressed: effectiveOnPressed,
         style: style,
         child: child,

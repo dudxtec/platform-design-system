@@ -121,6 +121,8 @@ class DsTheme {
       fontFamily: DsTypography.fontFamily,
       textTheme: text,
       splashFactory: InkRipple.splashFactory,
+      // Small visuals (32 px chips, 36 px links) keep a touch area of 44 px+.
+      materialTapTargetSize: MaterialTapTargetSize.padded,
       hoverColor: c.surfaceHover,
       focusColor: c.focusRing.withValues(alpha: 0.16),
       disabledColor: c.textDisabled,
@@ -315,7 +317,16 @@ class DsTheme {
       chipTheme: ChipThemeData(
         backgroundColor: c.surface,
         selectedColor: c.surfaceSelected,
-        side: BorderSide(color: c.borderStrong),
+        // Selected is never colour alone: the tint is only 1.15:1 against the
+        // surface, so it also gets a 2 px primary border and a check mark.
+        side: WidgetStateBorderSide.resolveWith((Set<WidgetState> states) {
+          if (states.contains(WidgetState.selected)) {
+            return BorderSide(color: c.primary, width: 2);
+          }
+          return BorderSide(color: c.borderStrong);
+        }),
+        showCheckmark: true,
+        checkmarkColor: c.primary,
         labelStyle: text.labelMedium,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(DsRadius.pill),

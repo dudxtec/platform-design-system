@@ -1,3 +1,20 @@
+## 0.3.3
+
+Primeira entrega do plano de listas mobile (botão flutuante, filtros compactos e
+revisão de contraste do escuro).
+
+### Muda o comportamento
+
+* `DsButton` `danger` usa o novo token `dangerSolid` com texto `onFill` (branco). No tema claro o valor não muda (vermelho 800). No escuro passa de vermelho 300 com texto escuro para vermelho 900 com texto branco (6,6:1). Hover e pressionado agora escurecem o fundo em 16% (antes usavam `dangerTone.text`, que no escuro era mais claro).
+* Chip selecionado (`FilterChip`, `ChoiceChip` e similares) ganha borda de 2 px na cor primária e ✓ antes do rótulo. Só o fundo `surfaceSelected` dá 1,15:1 contra a superfície e não bastava. A borda do chip não selecionado continua 1 px em `borderStrong`.
+* `DsTheme` fixa `materialTapTargetSize: padded`, para chips de 32 px e links de 36 px terem área de toque de 44 px ou mais.
+
+### Adicionado
+
+* Tokens em `DsColorTokens`: `dangerSolid`, `successSolid`, `fab` e `onFill`. São opcionais no construtor (padrão do tema claro), então temas próprios continuam compilando. `dangerTone.solid` e `successTone.solid` ficam para ícones, barras e bordas, que precisam do tom mais claro no escuro.
+* `DsButtonVariant.success`: botão preenchido de confirmação, com `successSolid` e texto branco (5,1:1).
+* `DsActionFab` e `DsFabAction`: botão flutuante de ações das listas, igual na web e no app. Uma ação executa direto; duas ou mais abrem um menu (celular: sobre fundo escurecido, primeira ação mais perto do polegar; acima de 600 px: menu ancorado, com opções que abrem dentro dele). Esc e toque fora fecham e o foco volta ao botão; some com o teclado aberto; respeita a área segura; `endOffset` desloca o botão para não cobrir um painel de detalhe. `DsActionFab.listBottomInset` (104 px) é a folga para o fim da lista.
+
 ## 0.3.2
 
 ### Muda o comportamento
