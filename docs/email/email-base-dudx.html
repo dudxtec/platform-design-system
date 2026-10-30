@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<title>{{assunto}}</title>
+<!--[if mso]>
+<noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+<![endif]-->
+</head>
+<!--
+  TEMPLATE BASE DE E-MAIL DA PLATAFORMA DUDX
+  Regras:
+  - Só tabelas e estilos inline. Nenhum <style> é obrigatório para o e-mail funcionar.
+  - Largura máxima 600px, fluida no celular (width:100%).
+  - Fonte: Poppins quando o cliente tem, senão Arial/Helvetica.
+  - Cabeçalho e rodapé são fixos. Muda só o BLOCO DE CONTEÚDO.
+  - Placeholders entre {{ }} são preenchidos pelo backend. Blocos opcionais
+    estão marcados com INÍCIO/FIM e podem ser removidos inteiros.
+-->
+<body style="margin:0; padding:0; width:100%; background-color:#eef3f3; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%;">
+
+<!-- Pré-cabeçalho: texto que aparece na lista de e-mails, ao lado do assunto. Oculto no corpo. -->
+<div style="display:none; font-size:1px; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden; mso-hide:all;">
+  {{pre_cabecalho}}&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;
+</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#eef3f3" style="background-color:#eef3f3;">
+<tr>
+<td align="center" style="padding:16px 8px;">
+
+  <!--[if mso]><table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
+
+    <!-- ===== CABEÇALHO (fixo) ===== -->
+    <tr>
+      <td bgcolor="#007172" style="background-color:#007172; padding:20px 24px; border-radius:12px 12px 0 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td align="left" valign="middle" style="font-family:'Poppins', Arial, Helvetica, sans-serif; font-size:20px; line-height:28px; font-weight:700; color:#ffffff;">
+              <!-- Tenant em destaque, em texto: aparece mesmo com imagens bloqueadas.
+                   A marca DUDX aparece só no rodapé ("Enviado pela plataforma DUDX"). -->
+              {{nome_tenant}}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <!-- ===== CONTEÚDO (muda por operação) ===== -->
+    <tr>
+      <td bgcolor="#ffffff" style="background-color:#ffffff; padding:32px 24px 8px 24px; font-family:'Poppins', Arial, Helvetica, sans-serif; color:#1b2a33;">
+
+        <!-- Saudação -->
+        <p style="margin:0 0 8px 0; font-size:16px; line-height:24px; color:#4a5a66;">Olá, {{primeiro_nome}}</p>
+
+        <!-- Título: diz a operação em uma frase -->
+        <h1 style="margin:0 0 16px 0; font-size:22px; line-height:30px; font-weight:700; color:#1b2a33;">{{titulo}}</h1>
+
+        <!-- Texto -->
+        <p style="margin:0 0 24px 0; font-size:16px; line-height:24px; color:#1b2a33;">{{texto}}</p>
+
+        <!-- INÍCIO bloco opcional: resumo em pares rótulo/valor -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f8f8" style="background-color:#f3f8f8; border:1px solid #d6e5e5; border-radius:8px; margin:0 0 24px 0;">
+          <tr>
+            <td style="padding:16px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <!-- Repetir esta linha para cada item -->
+                <tr>
+                  <td style="padding:6px 0; font-family:'Poppins', Arial, Helvetica, sans-serif; font-size:14px; line-height:20px; color:#4a5a66;">{{rotulo}}</td>
+                  <td align="right" style="padding:6px 0; font-family:'Poppins', Arial, Helvetica, sans-serif; font-size:16px; line-height:20px; font-weight:700; color:#1b2a33;">{{valor}}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+        <!-- FIM bloco opcional -->
+
+        <!-- INÍCIO botão (uma ação só por e-mail). Bloco que funciona no Outlook (VML) e nos demais. -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px 0;">
+          <tr>
+            <td align="center">
+              <!--[if mso]>
+              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{url_acao}}" style="height:52px; v-text-anchor:middle; width:552px;" arcsize="16%" stroke="f" fillcolor="#007172">
+                <w:anchorlock/>
+                <center style="color:#ffffff; font-family:Arial, sans-serif; font-size:16px; font-weight:bold;">{{texto_botao}}</center>
+              </v:roundrect>
+              <![endif]-->
+              <!--[if !mso]><!-->
+              <a href="{{url_acao}}" target="_blank" style="display:block; background-color:#007172; color:#ffffff; font-family:'Poppins', Arial, Helvetica, sans-serif; font-size:16px; line-height:52px; font-weight:700; text-align:center; text-decoration:none; border-radius:8px; mso-hide:all;">{{texto_botao}}</a>
+              <!--<![endif]-->
+            </td>
+          </tr>
+        </table>
+
+        <!-- Link de reserva para quem não consegue tocar no botão -->
+        <p style="margin:0 0 24px 0; font-size:13px; line-height:20px; color:#4a5a66;">
+          Se o botão não abrir, copie este endereço no navegador:<br>
+          <a href="{{url_acao}}" target="_blank" style="color:#007172; text-decoration:underline; word-break:break-all;">{{url_acao}}</a>
+        </p>
+        <!-- FIM botão -->
+
+        <!-- INÍCIO aviso opcional (prazo, segurança) -->
+        <p style="margin:0 0 24px 0; padding:12px 16px; font-size:14px; line-height:20px; color:#1b2a33; background-color:#fff4e5; border-left:4px solid #ff9100;">{{aviso}}</p>
+        <!-- FIM aviso opcional -->
+
+      </td>
+    </tr>
+
+    <!-- ===== RODAPÉ (fixo) ===== -->
+    <tr>
+      <td bgcolor="#ffffff" style="background-color:#ffffff; padding:0 24px; border-radius:0 0 12px 12px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr><td style="border-top:1px solid #d6e5e5; font-size:0; line-height:0;">&nbsp;</td></tr>
+          <tr>
+            <td style="padding:16px 0 24px 0; font-family:'Poppins', Arial, Helvetica, sans-serif; font-size:13px; line-height:20px; color:#4a5a66;">
+              <strong style="color:#1b2a33;">{{nome_tenant}}</strong>
+              <!-- INÍCIO linha opcional: só quando o tenant tem WhatsApp cadastrado. Sem número, remover a linha inteira (com o <br>). -->
+              <br>Dúvidas? Fale com a gente pelo WhatsApp {{whatsapp_tenant}}.
+              <!-- FIM linha opcional -->
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td align="center" style="padding:16px 24px 8px 24px; font-family:'Poppins', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:#5f6f7a;">
+        Você recebeu este e-mail porque {{motivo_envio}}.<br>
+        Este endereço não recebe respostas.<br>
+        <a href="{{url_politica_privacidade}}" target="_blank" style="color:#007172; text-decoration:underline;">Política de privacidade</a>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" style="padding:8px 24px 16px 24px; font-family:'Poppins', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:#5f6f7a;">
+        Enviado pela plataforma
+        <!-- Logo DUDX positivo: arquivo logo-dudx-email.png (200x44, exibido em 100x22).
+             Se o aplicativo bloquear imagens, aparece o texto "DUDX" do alt, no mesmo verde. -->
+        <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:8px auto 0 auto;">
+          <tr>
+            <td align="center">
+              <a href="https://dudx.cloud" target="_blank" style="text-decoration:none;">
+                <img src="https://stg001.dudx.cloud/logo-dudx-email.png" width="100" height="22" alt="DUDX" style="display:block; width:100px; height:22px; border:0; outline:none; text-decoration:none; font-family:'Poppins', Arial, Helvetica, sans-serif; font-size:16px; line-height:22px; font-weight:700; letter-spacing:2px; color:#007172;">
+              </a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+  </table>
+  <!--[if mso]></td></tr></table><![endif]-->
+
+</td>
+</tr>
+</table>
+</body>
+</html>
