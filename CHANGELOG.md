@@ -1,4 +1,4 @@
-## 0.3.3
+## 0.4.0
 
 Primeira entrega do plano de listas mobile (botão flutuante, filtros compactos e
 revisão de contraste do escuro).
