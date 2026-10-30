@@ -33,6 +33,7 @@ Duas origens:
 | Paginação | `DsPagination` | Três formatos de rodapé |
 | Shell e página | `DsAppShell`, `DsPage`, `DsPageHeader`, `DsBreadcrumb` | Privados do main-portal; duplicados em forms e reports |
 | Filtros | `DsFilterBar` | Busca e filtros diferentes em cada lista |
+| Filtros compactos | `DsCompactFilters`, `DsSortLink`, `showDsFilterSheet` | Campos de filtro soltos ocupavam metade da tela no celular |
 | Ações da lista | `DsActionFab` | Botões de criar e exportar na barra ou no cabeçalho, diferentes em cada módulo |
 | Formulário | `DsFormGrid`, `DsFieldLabel`, `DsFormActions` | Marcação de obrigatório e rodapé de ações divergentes |
 

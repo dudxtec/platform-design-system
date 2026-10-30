@@ -147,6 +147,42 @@ class ComponentsPage extends StatelessWidget {
           ),
           const SizedBox(height: DsSpacing.s24),
           DsSectionCard(
+            title: 'Filtros compactos',
+            child: Builder(
+              builder: (BuildContext context) => DsCompactFilters(
+                search: const TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Nome, CPF, telefone ou nº',
+                    prefixIcon: Icon(Icons.search),
+                  ),
+                ),
+                activeCount: 2,
+                onOpenFilters: () => showDsFilterSheet(
+                  context,
+                  title: 'Filtros',
+                  onClear: () {},
+                  builder: (_) => const Text('Situação, tags e período'),
+                ),
+                appliedFilters: <DsAppliedFilter>[
+                  DsAppliedFilter(label: 'Tags: Sócios', onRemove: () {}),
+                  DsAppliedFilter(label: 'Nº 1234', onRemove: () {}),
+                ],
+                onClear: () {},
+                resultLabel: '128 carnês',
+                sort: DsSortLink<String>(
+                  options: const <DsSortOption<String>>[
+                    DsSortOption<String>(value: 'person', label: 'Pessoa'),
+                    DsSortOption<String>(value: 'date', label: 'Criado em'),
+                  ],
+                  value: 'person',
+                  ascending: true,
+                  onSelected: (_) {},
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: DsSpacing.s24),
+          DsSectionCard(
             title: 'Badges e alertas',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
