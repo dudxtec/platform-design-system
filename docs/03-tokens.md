@@ -48,6 +48,20 @@ Os valores que já estavam em produção foram mantidos: teal 600, 700 e 500
 
 Cada tom tem cinco valores: `solid`, `onSolid`, `text`, `subtle`, `border`.
 
+### Preenchimentos fora dos tons
+
+| Token | Claro | Escuro | Uso |
+|---|---|---|---|
+| `dangerSolid` | vermelho 800 `#C62828` | vermelho 900 `#B71C1C` | Fundo de botão preenchido destrutivo |
+| `successSolid` | verde 700 `#2E7D32` | verde 700 `#2E7D32` | Fundo de botão preenchido de sucesso |
+| `fab` | teal 600 `#007172` | `#008486` | Fundo do `DsActionFab`, só dele |
+| `onFill` | branco | branco | Texto e ícone sobre os três acima |
+
+`dangerTone.solid` e `successTone.solid` são para ícones, barras e bordas: no
+escuro precisam do tom claro (vermelho 300, verde 400) para aparecer sobre a
+superfície. Branco sobre eles não passa de 4,5:1, por isso os botões usam os
+tokens acima. Não use `onAccent` sobre esses fundos: ele é escuro.
+
 ### Superfícies e texto
 
 | Token | Claro | Escuro | Uso |
@@ -85,6 +99,8 @@ algum par semântico cair abaixo do mínimo, em qualquer dos dois temas.
 | Aviso: `text` sobre `subtle` / `onSolid` sobre `solid` | 6,8 / 8,3 | 4,5 |
 | Erro: `text` sobre `subtle` / `onSolid` sobre `solid` | 5,8 / 5,6 | 4,5 |
 | Info: `text` sobre `subtle` | 6,6 | 4,5 |
+| `onFill` sobre `dangerSolid` / `successSolid` / `fab` | 5,6 / 5,1 / 5,8 | 4,5 |
+| `fab` sobre `surface` / `canvas` | 5,8 / 5,4 | 3,0 |
 
 | Par (tema escuro) | Razão |
 |---|---|
@@ -94,6 +110,9 @@ algum par semântico cair abaixo do mínimo, em qualquer dos dois temas.
 | `onPrimary` sobre `primary` | 5,7 |
 | `primary` como texto sobre `surface` | 5,1 |
 | `borderStrong` sobre `surface` | 3,7 |
+| `onFill` sobre `dangerSolid` / `successSolid` / `fab` | 6,6 / 5,1 / 4,5 |
+| `fab` sobre `surface` / `canvas` | 3,7 / 4,2 |
+| Borda `primary` do chip sobre `surfaceSelected` / `surface` | 3,7 / 5,1 |
 
 Valores antigos que **não** passam e por isso não entraram nos tokens
 semânticos: `DsColors.textDisabled` `#9AA5B1` (2,5), `DsColors.warning`
