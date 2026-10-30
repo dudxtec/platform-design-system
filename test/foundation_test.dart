@@ -241,6 +241,8 @@ void main() {
             theme: entry.key,
           ),
         );
+        // The app animates the change of theme.
+        await tester.pumpAndSettle();
         final DsColorTokens c = entry.value;
         final List<FilledButton> buttons = tester
             .widgetList<FilledButton>(find.byType(FilledButton))

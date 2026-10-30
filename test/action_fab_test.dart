@@ -9,16 +9,12 @@ Widget _host({
   required List<DsFabAction> actions,
   double width = 390,
   double endOffset = 0,
-  double keyboard = 0,
   ThemeData? theme,
 }) {
   return MaterialApp(
     theme: theme ?? DsTheme.light(),
     home: MediaQuery(
-      data: MediaQueryData(
-        size: Size(width, 600),
-        viewInsets: EdgeInsets.only(bottom: keyboard),
-      ),
+      data: MediaQueryData(size: Size(width, 600)),
       child: Scaffold(
         body: DsActionFab(
           actions: actions,
@@ -244,11 +240,18 @@ void main() {
     testWidgets('hides while the keyboard is open', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(
-        _host(actions: _two((String v) {}), keyboard: 300),
-      );
+      await tester.pumpWidget(_host(actions: _two((String v) {})));
+      expect(find.byType(FloatingActionButton), findsOneWidget);
 
+      // Physical pixels; a Scaffold would hide this from its body's MediaQuery.
+      tester.view.viewInsets = const FakeViewPadding(bottom: 900);
+      addTearDown(tester.view.resetViewInsets);
+      await tester.pump();
       expect(find.byType(FloatingActionButton), findsNothing);
+
+      tester.view.resetViewInsets();
+      await tester.pump();
+      expect(find.byType(FloatingActionButton), findsOneWidget);
     });
 
     testWidgets(

@@ -78,15 +78,29 @@ class DsActionFab extends StatefulWidget {
   State<DsActionFab> createState() => _DsActionFabState();
 }
 
-class _DsActionFabState extends State<DsActionFab> {
+class _DsActionFabState extends State<DsActionFab> with WidgetsBindingObserver {
   final FocusNode _fabFocus = FocusNode(debugLabel: 'DsActionFab');
   bool _open = false;
   String? _expanded;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _fabFocus.dispose();
     super.dispose();
+  }
+
+  // A Scaffold removes the keyboard inset from its body's MediaQuery, so the
+  // keyboard is read from the view and a change of metrics rebuilds the button.
+  @override
+  void didChangeMetrics() {
+    if (mounted) setState(() {});
   }
 
   void _close({bool restoreFocus = true}) {
@@ -161,7 +175,7 @@ class _DsActionFabState extends State<DsActionFab> {
 
     final DsColorTokens c = context.dsColors;
     final bool phone = MediaQuery.sizeOf(context).width < DsBreakpoints.mobile;
-    final bool keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
+    final bool keyboardOpen = View.of(context).viewInsets.bottom > 0;
     final bool visible = !widget.hidden && !keyboardOpen;
     final bool multi = actions.length > 1;
     final bool open = _open && multi && visible;
