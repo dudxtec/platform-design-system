@@ -8,6 +8,7 @@ export 'src/tokens/ds_palette.dart';
 export 'src/tokens/ds_radius.dart';
 export 'src/tokens/ds_spacing.dart';
 export 'src/tokens/ds_typography.dart';
+export 'src/widgets/ds_action_fab.dart';
 export 'src/widgets/ds_alert.dart';
 export 'src/widgets/ds_app_shell.dart';
 export 'src/widgets/ds_badge.dart';

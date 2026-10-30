@@ -33,6 +33,7 @@ Duas origens:
 | Paginação | `DsPagination` | Três formatos de rodapé |
 | Shell e página | `DsAppShell`, `DsPage`, `DsPageHeader`, `DsBreadcrumb` | Privados do main-portal; duplicados em forms e reports |
 | Filtros | `DsFilterBar` | Busca e filtros diferentes em cada lista |
+| Ações da lista | `DsActionFab` | Botões de criar e exportar na barra ou no cabeçalho, diferentes em cada módulo |
 | Formulário | `DsFormGrid`, `DsFieldLabel`, `DsFormActions` | Marcação de obrigatório e rodapé de ações divergentes |
 
 `DsPrimaryButton` e `DsOutlinedButton` estão obsoletos e delegam ao `DsButton`.
@@ -46,6 +47,12 @@ Duas origens:
 | `secondary` | Qualquer outra ação. Contorno neutro |
 | `ghost` | Baixa ênfase: cancelar, ações de barra, links de ação |
 | `danger` | Confirmação destrutiva, dentro do diálogo de confirmação |
+| `success` | Confirmação preenchida de um resultado positivo (confirmar pagamento, aprovar) |
+
+`danger` e `success` usam `dangerSolid` e `successSolid` com texto `onFill`
+(branco), que passam de 4,5:1 nos dois temas. Os tons `dangerTone.solid` e
+`successTone.solid` ficam para ícones, barras e bordas. Hover e pressionado
+escurecem o fundo em 16%.
 
 Tamanhos: `md` (40 px, padrão) e `sm` (32 px, dentro de tabela e barras).
 Abaixo de 900 px de largura o `md` passa a 44 px, o alvo mínimo de toque. `lg`
@@ -344,3 +351,46 @@ Recarga com dados já na tela não troca a tela: usa a linha de progresso
 
 Dois vazios diferentes: "ainda não há registros" oferece criar; "nenhum
 resultado para o filtro" oferece limpar filtros.
+
+## 5.17 Botão flutuante de ações — `DsActionFab`
+
+Ações da tela de uma lista ou visão geral (criar, exportar e as futuras) ficam
+num botão flutuante de 56 px, raio 16, no canto inferior final da área da lista
+(16 px das bordas no celular, 24 px acima de 600 px). É igual na web e no app.
+O componente envolve a área da lista (`child`) e posiciona o botão sobre ela.
+
+| Ações | Comportamento |
+|---|---|
+| Nenhuma | Sem botão (ex.: Relatórios) |
+| Uma | O botão executa direto; o nome acessível é o da ação |
+| Duas ou mais | O botão abre um menu e o ícone vira X; nome acessível "Ações" |
+
+- Celular (abaixo de 600 px): fundo escurecido; itens empilhados acima do botão,
+  a primeira ação mais perto do polegar. Ação com `children` e sem `onPressed`
+  abre uma folha inferior com as opções; com `onPressed` chama o chamador, que
+  abre a folha que já existe (ex.: exportação).
+- A partir de 600 px: menu ancorado acima do botão, sem escurecer; as opções de
+  uma ação (`children`) abrem dentro do mesmo menu.
+- Esc e toque fora fecham, e o foco volta ao botão. O primeiro item recebe o foco
+  ao abrir. O botão some com o teclado aberto e respeita a área segura.
+- `endOffset` desloca o botão para o início, para não cobrir um painel de
+  detalhe aberto na mesma tela. `hidden` o esconde sem remover o conteúdo.
+- O conteúdo rolável atrás do botão termina com `DsActionFab.listBottomInset`
+  (104 px) de folga; avisos (toast) sobem para ficar acima do botão.
+- Cor: token `fab` (claro `#007172`, escuro `#008486`) com ícone `onFill`. O
+  escuro é mais claro que o primário para o botão passar de 3:1 sobre a
+  superfície (3,7:1) com o ícone branco em 4,5:1.
+
+**Correto:** rótulos com verbo e objeto ("Novo carnê"); a ação mais usada primeiro.
+**Incorreto:** botão de ação na barra superior ou no cabeçalho da lista;
+mais de um botão flutuante por tela; usar em telas de detalhe (lá vale uma ação
+principal visível).
+
+## 5.18 Chip selecionado
+
+Chips de filtro, opções de ordenação, forma de pagamento e escolha de campanha
+mostram o estado selecionado com borda de 2 px na cor primária, fundo
+`surfaceSelected` e ✓ antes do rótulo. O fundo sozinho dá 1,15:1 contra a
+superfície e não distingue o estado. `DsTheme` aplica isso ao `ChipThemeData`
+(`FilterChip`, `ChoiceChip`). O visual do chip pode ter 32 px; a área de toque
+tem 44 px ou mais (`materialTapTargetSize: padded`).

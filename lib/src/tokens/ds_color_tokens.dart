@@ -77,6 +77,10 @@ class DsColorTokens extends ThemeExtension<DsColorTokens> {
     required this.warningTone,
     required this.dangerTone,
     required this.infoTone,
+    this.dangerSolid = DsPalette.red800,
+    this.successSolid = DsPalette.green700,
+    this.fab = DsPalette.teal600,
+    this.onFill = DsPalette.white,
   });
 
   /// Page background, behind cards.
@@ -135,6 +139,23 @@ class DsColorTokens extends ThemeExtension<DsColorTokens> {
   final DsToneColors warningTone;
   final DsToneColors dangerTone;
   final DsToneColors infoTone;
+
+  /// Fill of filled destructive buttons. [onFill] on it reaches 4.5:1 in both
+  /// themes. `dangerTone.solid` keeps the lighter dark-theme step for icons,
+  /// bars and borders, which must stand out against the dark surface.
+  final Color dangerSolid;
+
+  /// Fill of filled success buttons. [onFill] on it reaches 4.5:1 in both
+  /// themes. `successTone.solid` is for icons, bars and borders.
+  final Color successSolid;
+
+  /// Fill of the floating action button (`DsActionFab` only). At least 3:1
+  /// against [surface] and [canvas], with [onFill] at 4.5:1 on top.
+  final Color fab;
+
+  /// Text and icon on [dangerSolid], [successSolid] and [fab]. White in both
+  /// themes; do not use [onAccent] here, which is dark.
+  final Color onFill;
 
   DsToneColors tone(DsTone tone) {
     return switch (tone) {
@@ -218,6 +239,10 @@ class DsColorTokens extends ThemeExtension<DsColorTokens> {
       subtle: DsPalette.blue50,
       border: DsPalette.blue200,
     ),
+    dangerSolid: DsPalette.red800,
+    successSolid: DsPalette.green700,
+    fab: DsPalette.teal600,
+    onFill: DsPalette.white,
   );
 
   static const DsColorTokens dark = DsColorTokens(
@@ -285,6 +310,12 @@ class DsColorTokens extends ThemeExtension<DsColorTokens> {
       subtle: Color(0xFF0B2A3D),
       border: Color(0xFF12425F),
     ),
+    dangerSolid: DsPalette.red900,
+    successSolid: DsPalette.green700,
+    // Lighter than teal 600 so the button stays 3:1 over the dark surface
+    // (3.7:1) while the white icon on it still reaches 4.5:1.
+    fab: Color(0xFF008486),
+    onFill: DsPalette.white,
   );
 
   @override
@@ -317,6 +348,10 @@ class DsColorTokens extends ThemeExtension<DsColorTokens> {
     DsToneColors? warningTone,
     DsToneColors? dangerTone,
     DsToneColors? infoTone,
+    Color? dangerSolid,
+    Color? successSolid,
+    Color? fab,
+    Color? onFill,
   }) {
     return DsColorTokens(
       canvas: canvas ?? this.canvas,
@@ -347,6 +382,10 @@ class DsColorTokens extends ThemeExtension<DsColorTokens> {
       warningTone: warningTone ?? this.warningTone,
       dangerTone: dangerTone ?? this.dangerTone,
       infoTone: infoTone ?? this.infoTone,
+      dangerSolid: dangerSolid ?? this.dangerSolid,
+      successSolid: successSolid ?? this.successSolid,
+      fab: fab ?? this.fab,
+      onFill: onFill ?? this.onFill,
     );
   }
 
@@ -383,6 +422,10 @@ class DsColorTokens extends ThemeExtension<DsColorTokens> {
       warningTone: DsToneColors.lerp(warningTone, other.warningTone, t),
       dangerTone: DsToneColors.lerp(dangerTone, other.dangerTone, t),
       infoTone: DsToneColors.lerp(infoTone, other.infoTone, t),
+      dangerSolid: c(dangerSolid, other.dangerSolid),
+      successSolid: c(successSolid, other.successSolid),
+      fab: c(fab, other.fab),
+      onFill: c(onFill, other.onFill),
     );
   }
 }
