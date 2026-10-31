@@ -667,6 +667,33 @@ void main() {
   });
 
   group('layout', () {
+    testWidgets('DsBreadcrumb current item is tappable only with onTap', (
+      WidgetTester tester,
+    ) async {
+      int taps = 0;
+      await tester.pumpWidget(
+        _app(
+          DsBreadcrumb(
+            items: <DsBreadcrumbItem>[
+              const DsBreadcrumbItem('Início'),
+              DsBreadcrumbItem('Pessoas', onTap: () => taps++),
+            ],
+          ),
+        ),
+      );
+      await tester.tap(find.text('Pessoas'));
+      expect(taps, 1);
+
+      await tester.pumpWidget(
+        _app(
+          const DsBreadcrumb(
+            items: <DsBreadcrumbItem>[DsBreadcrumbItem('Pessoas')],
+          ),
+        ),
+      );
+      expect(find.byType(InkWell), findsNothing);
+    });
+
     testWidgets('DsPageHeader stacks actions on narrow widths', (
       WidgetTester tester,
     ) async {
