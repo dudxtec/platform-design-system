@@ -75,7 +75,8 @@ indicar seleção e funciona nos dois temas.
 ### Breadcrumb
 
 - Presente em toda página abaixo da raiz do módulo. O último item é a página
-  atual e não é link.
+  atual e não é link, a menos que o portal passe `onTap` (por exemplo, Ctrl + clique
+  para abrir a página em nova aba).
 - Reflete hierarquia, não histórico.
 
 ### Cabeçalho de página e barra de ações

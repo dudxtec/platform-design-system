@@ -12,7 +12,8 @@ class DsBreadcrumbItem {
 
   final String label;
 
-  /// Null for the current page (last item).
+  /// Null for the current page (last item), unless the portal wants it
+  /// clickable (for example Ctrl + click to open the page in a new tab).
   final VoidCallback? onTap;
 }
 
@@ -49,10 +50,11 @@ class DsBreadcrumb extends StatelessWidget {
         ),
       );
       children.add(
-        current || item.onTap == null
+        item.onTap == null
             ? Semantics(header: current, child: label)
             : Semantics(
-                link: true,
+                link: !current,
+                header: current,
                 child: InkWell(
                   onTap: item.onTap,
                   borderRadius: BorderRadius.circular(DsSpacing.s4),

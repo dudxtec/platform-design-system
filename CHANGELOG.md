@@ -1,3 +1,9 @@
+## 0.4.1
+
+### Muda o comportamento
+
+* `DsBreadcrumbItem.onTap` agora vale também para o último item (a página atual), que antes ignorava o toque. Sem `onTap`, nada muda. Útil para, por exemplo, Ctrl + clique abrir a página em nova aba.
+
 ## 0.4.0
 
 Segunda entrega do plano de listas mobile: filtros compactos, iguais na web e no app.
