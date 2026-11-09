@@ -15,7 +15,9 @@ fora de `lib/`).
 
 ## Estrutura
 
-- Topo (fixo): faixa verde `#007172` com o nome do tenant em destaque, em texto.
+- Topo (fixo): faixa verde `#007172` com o nome do tenant em destaque, em texto,
+  e filete laranja `#ff9100` de 3px embaixo (`border-bottom` inline no `td`),
+  igual ao cabeçalho do portal.
 - Meio (muda por operação): saudação, título, um parágrafo, resumo opcional em
   pares rótulo/valor, um único botão de largura total (52px), link de reserva
   e aviso opcional com borda laranja.
